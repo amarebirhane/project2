@@ -7,14 +7,14 @@ def init_db(db: Session) -> None:
     # Check if admin exists
     admin = get_user_by_email(db, email="admin@example.com")
     if not admin:
-        user_in = UserCreate(
+        admin_in = UserCreate(
             email="admin@example.com",
             username="admin",
             first_name="Admin",
             last_name="User",
-            password="adminpassword123"
+            password="adminpassword123",
         )
-        create_user(db, user=user_in, role="admin")
+        create_user(db, admin_in, role="admin")
         print("Default admin created: admin@example.com")
     else:
         print("Default admin already exists: admin@example.com")
