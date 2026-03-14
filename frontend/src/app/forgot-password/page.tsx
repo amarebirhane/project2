@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { authService } from "@/features/auth/authService";
 import Link from "next/link";
+import { getErrorMessage } from "@/utils/errorHandler";
 import { Mail, Loader2, ArrowLeft, Lock as LockIcon } from "lucide-react";
 
 export default function ForgotPasswordPage() {
@@ -26,7 +27,7 @@ export default function ForgotPasswordPage() {
     } catch (err: any) {
       setMessage({ 
         type: "error", 
-        text: err.response?.data?.detail || "Failed to request password reset." 
+        text: getErrorMessage(err, "Failed to request password reset.") 
       });
     } finally {
       setLoading(false);

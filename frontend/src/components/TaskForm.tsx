@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Task, Category } from "@/types/task";
 import { taskService } from "@/features/tasks/taskService";
 import { X, Save, AlertCircle } from "lucide-react";
+import { getErrorMessage } from "@/utils/errorHandler";
 
 interface TaskFormProps {
   task?: Task | null;
@@ -48,7 +49,7 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
       }
       onSave();
     } catch (err: any) {
-      setError(err.response?.data?.detail || "Failed to save task.");
+      setError(getErrorMessage(err, "Failed to save task."));
     } finally {
       setLoading(false);
     }

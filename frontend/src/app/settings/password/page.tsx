@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { authService } from "@/features/auth/authService";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
+import { getErrorMessage } from "@/utils/errorHandler";
 import { Lock, Loader2, KeyRound, Eye, EyeOff } from "lucide-react";
 
 export default function ChangePasswordPage() {
@@ -37,7 +38,7 @@ export default function ChangePasswordPage() {
     } catch (err: any) {
       setMessage({ 
         type: "error", 
-        text: err.response?.data?.detail || "Failed to change password." 
+        text: getErrorMessage(err, "Failed to change password.") 
       });
     } finally {
       setLoading(false);
