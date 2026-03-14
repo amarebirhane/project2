@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import api from "@/services/api";
+import { authService } from "@/features/auth/authService";
 import Link from "next/link";
 import { User as UserIcon, Mail, Lock, Loader2, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -21,7 +21,7 @@ export default function RegisterForm() {
     setLoading(true);
 
     try {
-      await api.post("/auth/register", {
+      await authService.register({
         name,
         email,
         password,
