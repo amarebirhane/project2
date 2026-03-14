@@ -22,6 +22,7 @@ class TaskUpdate(BaseModel):
     status: Optional[str] = None
     deadline: Optional[datetime] = None
     category_id: Optional[UUID] = None
+    user_id: Optional[UUID] = None
 
 class TaskResponse(TaskBase):
     id: UUID
