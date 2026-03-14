@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { authService } from "@/features/auth/authService";
+import { getErrorMessage } from "@/utils/errorHandler";
 import Link from "next/link";
 import { Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
 
@@ -26,7 +27,7 @@ export default function LoginForm() {
       });
       await login(data.access_token);
     } catch (err: any) {
-      setError(err.response?.data?.detail || "Login failed. Please check your credentials.");
+      setError(getErrorMessage(err, "Login failed. Please check your credentials."));
     } finally {
       setLoading(false);
     }
