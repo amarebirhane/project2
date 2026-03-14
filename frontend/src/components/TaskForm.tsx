@@ -102,7 +102,7 @@ export default function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
               <select 
                 className="input-base bg-white" 
                 value={priority}
-                onChange={(e) => setPriority(e.target.value)}
+                onChange={(e) => setPriority(e.target.value as any)}
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
