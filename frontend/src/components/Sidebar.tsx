@@ -13,6 +13,8 @@ import {
   Menu,
   X,
   TrendingUp
+  TrendingUp,
+  User // Added User icon
 } from "lucide-react";
 import { clsx } from "clsx";
 
@@ -20,6 +22,8 @@ const navItems = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard, roles: ["user", "manager", "admin"] },
   { name: "My Tasks", href: "/dashboard/my-tasks", icon: CheckSquare, roles: ["user", "manager", "admin"] },
   { name: "Team Analytics", href: "/dashboard/team", icon: TrendingUp, roles: ["manager", "admin"] },
+  { name: "Profile", href: "/profile", icon: User, roles: ["user", "manager", "admin"] }, // Added Profile link
+  { name: "Security", href: "/settings/password", icon: Settings, roles: ["user", "manager", "admin"] }, // Added Security link
   { name: "System Health", href: "/dashboard/admin", icon: PieChart, roles: ["admin"] },
   { name: "Platform Users", href: "/users", icon: Users, roles: ["admin"] },
 ];
