@@ -1,14 +1,11 @@
-from datetime import timedelta
+from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.api import deps
-from app.core.config import settings
-from app.crud.user_crud import get_user_by_email, create_user
+from app.services.auth_service import auth_service
 from app.schemas.user_schema import UserCreate, UserResponse
-from app.utils.token import create_access_token
-from app.utils.hash import verify_password
 
 router = APIRouter()
 
@@ -21,14 +18,7 @@ def register(
     """
     Create new user.
     """
-    user = get_user_by_email(db, email=user_in.email)
-    if user:
-        raise HTTPException(
-            status_code=400,
-            detail="The user with this username already exists in the system.",
-        )
-    user = create_user(db, user_in)
-    return user
+    return auth_service.register_new_user(db, user_in)
 
 @router.post("/login")
 def login(
@@ -38,14 +28,13 @@ def login(
     """
     OAuth2 compatible token login, get an access token for future requests
     """
-    user = get_user_by_email(db, email=form_data.username)
-    if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
+    user = auth_service.authenticate_user(
+        db, email=form_data.username, password=form_data.password
+    )
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Incorrect email or password"
+        )
     
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    return {
-        "access_token": create_access_token(
-            user.id, expires_delta=access_token_expires
-        ),
-        "token_type": "bearer",
-    }
+    return auth_service.create_login_token(str(user.id))
