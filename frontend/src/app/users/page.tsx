@@ -62,10 +62,10 @@ export default function UsersPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-bold mr-3">
-                          {user.name.charAt(0)}
+                          {user.first_name.charAt(0)}
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-slate-900">{user.name}</p>
+                          <p className="text-sm font-bold text-slate-900">{user.first_name} {user.last_name}</p>
                           <p className="text-xs text-slate-500 flex items-center">
                             <Mail className="h-3 w-3 mr-1" /> {user.email}
                           </p>
