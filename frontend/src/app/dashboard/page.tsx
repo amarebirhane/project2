@@ -74,6 +74,18 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 animate-fade-in">
+      <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900">Enterprise Overview</h2>
+          <p className="text-sm text-slate-500">Your central command for all operations</p>
+        </div>
+        <div className="flex gap-3">
+          {user?.role === "user" && <Link href="/dashboard/my-tasks" className="btn-primary py-2 px-4 text-sm">My Workplace</Link>}
+          {(user?.role === "manager" || user?.role === "admin") && <Link href="/dashboard/team" className="btn-primary py-2 px-4 text-sm bg-emerald-600 hover:bg-emerald-700">Team Velocity</Link>}
+          {user?.role === "admin" && <Link href="/dashboard/admin" className="btn-primary py-2 px-4 text-sm bg-purple-600 hover:bg-purple-700">System Health</Link>}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, i) => (
           <div key={i} className="card-premium p-6 flex items-center space-x-4">
