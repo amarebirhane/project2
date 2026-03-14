@@ -7,7 +7,11 @@ export const authService = {
     params.append("username", credentials.username);
     params.append("password", credentials.password);
 
-    const response = await api.post<AuthResponse>("/auth/login", params);
+    const response = await api.post<AuthResponse>("/auth/login", params.toString(), {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
     return response.data;
   },
 
