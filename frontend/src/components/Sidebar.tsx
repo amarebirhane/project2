@@ -11,7 +11,8 @@ import {
   PieChart, 
   Settings,
   Menu,
-  X
+  X,
+  TrendingUp
 } from "lucide-react";
 import { clsx } from "clsx";
 
