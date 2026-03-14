@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     
     # First Superuser
     FIRST_SUPERUSER: str = "admin@example.com"
+    FIRST_SUPERUSER_USERNAME: str = "admin"
     FIRST_SUPERUSER_PASSWORD: str = "adminpassword123"
     
     # Database
