@@ -8,39 +8,20 @@ import TaskForm from "@/components/TaskForm";
 import { Plus, Search, Filter, Loader2 } from "lucide-react";
 
 export default function TaskList() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { tasks, loading, refreshTasks, deleteTask: apiDeleteTask, updateTask: apiUpdateTask } = useTasks();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  const fetchTasks = async () => {
-    setLoading(true);
-    try {
-      const data = await taskService.getTasks();
-      setTasks(data);
-    } catch (error) {
-      console.error("Failed to fetch tasks", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTasks();
-  }, []);
-
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this task?")) {
-      await taskService.deleteTask(id);
-      fetchTasks();
+      await apiDeleteTask(id);
     }
   };
 
   const handleStatusChange = async (id: string, status: string) => {
-    await taskService.updateTask(id, { status });
-    fetchTasks();
+    await apiUpdateTask(id, { status });
   };
 
   const filteredTasks = tasks.filter(task => {
