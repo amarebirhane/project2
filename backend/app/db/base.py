@@ -10,3 +10,7 @@ class Base:
     @declared_attr
     def __tablename__(cls) -> str:
         return cls.__name__.lower()
+
+from app.models.user import User  # noqa
+from app.models.task import Task  # noqa
+from app.models.category import Category  # noqa
