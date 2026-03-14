@@ -1,16 +1,9 @@
 from typing import Any, List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.api import deps
-from app.crud.task_crud import (
-    get_task,
-    get_tasks,
-    get_user_tasks,
-    create_user_task,
-    update_task,
-    delete_task,
-)
+from app.services.task_service import task_service
 from app.schemas.task_schema import TaskResponse, TaskCreate, TaskUpdate
 from app.models.user import User
 
@@ -24,14 +17,9 @@ def read_tasks(
     current_user: User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
-    Retrieve tasks. Admin or manager can access all tasks (for team management). 
-    Users only see their own tasks.
+    Retrieve tasks.
     """
-    if current_user.role in ["admin", "manager"]:
-        tasks = get_tasks(db, skip=skip, limit=limit)
-    else:
-        tasks = get_user_tasks(db=db, user_id=current_user.id, skip=skip, limit=limit)
-    return tasks
+    return task_service.get_tasks_for_user(db, user=current_user, skip=skip, limit=limit)
 
 @router.post("/", response_model=TaskResponse)
 def create_task(
@@ -43,11 +31,10 @@ def create_task(
     """
     Create new task.
     """
-    task = create_user_task(db=db, task=task_in, user_id=str(current_user.id))
-    return task
+    return task_service.create_task(db, user=current_user, task_in=task_in)
 
 @router.put("/{id}", response_model=TaskResponse)
-def update_task_route(
+def update_task(
     *,
     db: Session = Depends(deps.get_db),
     id: str,
@@ -57,28 +44,17 @@ def update_task_route(
     """
     Update a task.
     """
-    task = get_task(db=db, task_id=id)
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-    if not (current_user.role in ["admin", "manager"] or task.user_id == current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
-    task = update_task(db=db, db_task=task, task_in=task_in)
-    return task
+    return task_service.update_task_securely(db, user=current_user, task_id=id, task_in=task_in)
 
 @router.delete("/{id}", response_model=TaskResponse)
-def delete_task_route(
+def delete_task(
     *,
     db: Session = Depends(deps.get_db),
     id: str,
     current_user: User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
-    Delete an task. Admin can delete any task. Users delete their own.
+    Delete a task.
     """
-    task = get_task(db=db, task_id=id)
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-    if not (current_user.role == "admin" or task.user_id == current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
-    delete_task(db=db, db_task=task)
-    return task
+    task_service.delete_task_securely(db, user=current_user, task_id=id)
+    return {"message": "Task deleted successfully"}
