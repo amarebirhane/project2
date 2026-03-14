@@ -1,4 +1,3 @@
-```javascript
 "use client";
 
 import React from "react";
