@@ -18,7 +18,8 @@ class AuthService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="A user with this email already exists.",
             )
-        return create_user(db, user=user_in)
+        return create_user(db, user=user_in, role="user")
+
 
     @staticmethod
     def authenticate_user(db: Session, email: str, password: str):

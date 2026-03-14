@@ -5,9 +5,15 @@ from app.api.routes import auth, users, tasks, categories, analytics
 from app.core.config import settings
 from app.db.database import engine
 from app.db.base import Base
+from app.db.init_db import init_db
+from app.db.database import SessionLocal
 
 # Create db tables if they don't exist
 Base.metadata.create_all(bind=engine)
+
+# Seed initial data
+with SessionLocal() as db:
+    init_db(db)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

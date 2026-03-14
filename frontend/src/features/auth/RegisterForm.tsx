@@ -7,12 +7,14 @@ import { User as UserIcon, Mail, Lock, Loader2, ShieldCheck } from "lucide-react
 import { useRouter } from "next/navigation";
 
 export default function RegisterForm() {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,11 +24,13 @@ export default function RegisterForm() {
 
     try {
       await authService.register({
-        name,
+        first_name: firstName,
+        last_name: lastName,
+        username,
         email,
         password,
-        role,
       });
+
       router.push("/login?registered=true");
     } catch (err: any) {
       setError(err.response?.data?.detail || "Registration failed. Please try again.");
@@ -48,15 +52,39 @@ export default function RegisterForm() {
           </div>
         )}
         <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="relative">
+              <UserIcon className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
+              <input
+                type="text"
+                required
+                className="input-base pl-10"
+                placeholder="First name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </div>
+            <div className="relative">
+              <UserIcon className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
+              <input
+                type="text"
+                required
+                className="input-base pl-10"
+                placeholder="Last name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </div>
+          </div>
           <div className="relative">
             <UserIcon className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
             <input
               type="text"
               required
               className="input-base pl-10"
-              placeholder="Full name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
           </div>
           <div className="relative">
@@ -81,19 +109,8 @@ export default function RegisterForm() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <div className="relative">
-            <ShieldCheck className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
-            <select
-              className="input-base pl-10 appearance-none bg-white"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-            >
-              <option value="user">User</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
         </div>
+
 
         <div>
           <button
