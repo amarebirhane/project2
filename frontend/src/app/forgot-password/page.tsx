@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { authService } from "@/features/auth/authService";
 import Link from "next/link";
-import { Mail, Loader2, ArrowLeft } from "lucide-react";
+import { Mail, Loader2, ArrowLeft, Lock as LockIcon } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -38,7 +38,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md p-8 space-y-8 card-premium">
         <div className="flex flex-col items-center text-center">
           <div className="h-16 w-16 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 mb-4">
-            <Lock size={32} />
+            <LockIcon size={32} />
           </div>
           <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Forgot Password?</h2>
           <p className="mt-2 text-sm text-slate-500">No worries, we&apos;ll help you reset it.</p>

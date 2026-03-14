@@ -17,7 +17,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <h1 className="text-lg font-semibold text-slate-800 hidden sm:block">
-              Welcome back, <span className="text-primary-600">{user.name}</span>
+              Welcome back, <span className="text-primary-600">{user.username}</span>
             </h1>
           </div>
           
@@ -35,7 +35,7 @@ export default function Navbar() {
                   <UserIcon className="h-5 w-5" />
                 </div>
                 <div className="hidden sm:block text-left">
-                  <p className="text-xs font-bold text-slate-900 leading-tight">{user.name}</p>
+                  <p className="text-xs font-bold text-slate-900 leading-tight">{user.username}</p>
                   <p className="text-[10px] text-slate-500 uppercase tracking-wider">{user.role}</p>
                 </div>
               </button>
