@@ -15,4 +15,9 @@ export const userService = {
     const response = await api.put<User>(`/users/${id}`, data);
     return response.data;
   },
+
+  createUser: async (user: any) => {
+    const response = await api.post<User>("/auth/register", user);
+    return response.data;
+  },
 };
