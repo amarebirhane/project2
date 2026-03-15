@@ -55,13 +55,16 @@ export const authService = {
     return response.data;
   },
 
-  requestPasswordReset: async (email: string): Promise<any> => {
+  requestPasswordReset: async (email: string): Promise<{ msg: string; token: string; "2fa_required": boolean }> => {
     const response = await api.post("/auth/password-reset/request", { email });
     return response.data;
   },
 
-  resetPassword: async (data: any): Promise<any> => {
-    const response = await api.post("/auth/password-reset/reset", data);
+  resetPassword: async (data: { token: string; new_password: string }, twoFACode?: string): Promise<any> => {
+    const url = twoFACode
+      ? `/auth/password-reset/reset?code=${twoFACode}`
+      : "/auth/password-reset/reset";
+    const response = await api.post(url, data);
     return response.data;
   },
 

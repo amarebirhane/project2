@@ -40,8 +40,8 @@ class PasswordReset(BaseModel):
 class UserResponse(UserBase):
     id: UUID
     role: str
-    is_active: bool = True
-    is_two_factor_enabled: bool = False
+    is_active: Optional[bool] = True
+    is_two_factor_enabled: Optional[bool] = False
     created_at: datetime
 
     class Config:

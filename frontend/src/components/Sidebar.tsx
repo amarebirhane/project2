@@ -4,11 +4,11 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { 
-  LayoutDashboard, 
-  CheckSquare, 
-  Users, 
-  PieChart, 
+import {
+  LayoutDashboard,
+  CheckSquare,
+  Users,
+  PieChart,
   Settings,
   Menu,
   X,
@@ -23,7 +23,6 @@ const navItems = [
   { name: "My Tasks", href: "/dashboard/my-tasks", icon: CheckSquare, roles: ["user", "manager", "admin"] },
   { name: "Team Analytics", href: "/dashboard/team", icon: TrendingUp, roles: ["manager", "admin"] },
   { name: "Profile", href: "/profile", icon: User, roles: ["user", "manager", "admin"] }, // Added Profile link
-  { name: "Security", href: "/settings/password", icon: Settings, roles: ["user", "manager", "admin"] }, // Added Security link
   { name: "System Health", href: "/dashboard/admin", icon: PieChart, roles: ["admin"] },
   { name: "Platform Users", href: "/users", icon: Users, roles: ["admin"] },
   { name: "Audit Logs", href: "/dashboard/audit-logs", icon: Activity, roles: ["admin"] },
@@ -55,20 +54,20 @@ export default function Sidebar() {
             {isOpen ? <X /> : <Menu />}
           </button>
         </div>
-        
+
         <nav className="space-y-2 font-medium">
           {filteredNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
-            
+
             return (
               <Link
                 key={item.name}
                 href={item.href}
                 className={clsx(
                   "flex items-center p-2 rounded-lg transition-all duration-200 group",
-                  isActive 
-                    ? "bg-primary-50 text-primary-600" 
+                  isActive
+                    ? "bg-primary-50 text-primary-600"
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 )}
               >

@@ -13,9 +13,10 @@ import {
   User, 
   Save, 
   Loader2, 
-  CheckCircle2, 
-  AlertCircle 
+  AlertCircle,
+  X
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 
 interface Setting {
   key: string;
@@ -37,6 +38,12 @@ export default function SettingsPage() {
   const [setupData, setSetupData] = useState<{ secret: string; provisioning_uri: string } | null>(null);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [twoFactorCode, setTwoFactorCode] = useState("");
+
+  // Password Edit States
+  const [showPasswordEdit, setShowPasswordEdit] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     fetchSettings();
@@ -72,8 +79,8 @@ export default function SettingsPage() {
       const data = await authService.setup2FA();
       setSetupData(data);
       setShow2FASetup(true);
-      // In a real app, generate QR code from provisioning_uri here
-      setQrCode("simulated-qr-code");
+      // Generate QR code from provisioning_uri
+      setQrCode(data.provisioning_uri);
     } catch (error) {
       setMessage({ type: "error", text: "Failed to initialize 2FA setup." });
     }
@@ -89,6 +96,26 @@ export default function SettingsPage() {
       window.location.reload();
     } catch (error) {
       setMessage({ type: "error", text: "Invalid code. Please try again." });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      setMessage({ type: "error", text: "New passwords do not match." });
+      return;
+    }
+    setSaving(true);
+    try {
+      await authService.changePassword({ old_password: oldPassword, new_password: newPassword });
+      setMessage({ type: "success", text: "Password updated successfully." });
+      setShowPasswordEdit(false);
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      setMessage({ type: "error", text: error.response?.data?.detail || "Failed to update password." });
     } finally {
       setSaving(false);
     }
@@ -178,8 +205,19 @@ export default function SettingsPage() {
                     <h3 className="font-bold text-slate-900">Security & Authentication</h3>
                     <p className="text-sm text-slate-500">Manage your password and security settings</p>
                   </div>
-                  <div className="space-y-4">
-                    <button className="btn-primary-outline w-full sm:w-auto px-6">Change Password</button>
+                  <div className="space-y-6">
+                    <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 flex justify-between items-center">
+                      <div>
+                        <h4 className="font-bold text-slate-900">Password</h4>
+                        <p className="text-xs text-slate-500">Update your account password</p>
+                      </div>
+                      <button 
+                        onClick={() => setShowPasswordEdit(true)}
+                        className="btn-primary-outline px-4 py-2 text-sm"
+                      >
+                        Change Password
+                      </button>
+                    </div>
                     <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -214,11 +252,8 @@ export default function SettingsPage() {
                               <div className="p-4 bg-white rounded-xl border border-slate-100 flex flex-col items-center">
                                 <p className="text-xs font-bold text-slate-700 mb-3">Scan this QR Code with your App</p>
                                 {qrCode ? (
-                                  <div className="bg-white p-2 border border-slate-100 rounded-lg">
-                                    {/* In a real app, use a QR component. Here we'll simulate */}
-                                    <div className="w-32 h-32 bg-slate-100 flex items-center justify-center text-[10px] text-slate-400 text-center px-4">
-                                      QR Code Placeholder
-                                    </div>
+                                  <div className="bg-white p-2 border border-slate-100 rounded-lg shadow-sm">
+                                    <QRCodeSVG value={qrCode} size={150} level="M" />
                                   </div>
                                 ) : (
                                   <Loader2 className="animate-spin text-primary-600" />
@@ -313,6 +348,68 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
+
+        {/* Change Password Modal */}
+        {showPasswordEdit && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-slide-up">
+              <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 className="font-bold text-slate-900">Change Password</h3>
+                <button onClick={() => setShowPasswordEdit(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Current Password</label>
+                  <input 
+                    type="password" 
+                    placeholder="••••••••" 
+                    className="input-base" 
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">New Password</label>
+                  <input 
+                    type="password" 
+                    placeholder="••••••••" 
+                    className="input-base" 
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Confirm New Password</label>
+                  <input 
+                    type="password" 
+                    placeholder="••••••••" 
+                    className="input-base" 
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+                <div className="pt-4 flex gap-3">
+                  <button 
+                    onClick={() => setShowPasswordEdit(false)}
+                    className="flex-1 px-4 py-2.5 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleChangePassword}
+                    disabled={saving || !oldPassword || !newPassword || newPassword !== confirmPassword}
+                    className="flex-1 btn-primary py-2.5 shadow-lg shadow-primary-200 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                  >
+                    {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                    Save Password
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AuthenticatedLayout>
   );
