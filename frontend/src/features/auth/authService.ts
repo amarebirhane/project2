@@ -25,7 +25,12 @@ export const authService = {
     return response.data;
   },
 
-  logout: () => {
+  logout: async (): Promise<void> => {
+    // Call backend to register logout in audit log
+    await api.post("/auth/logout");
+  },
+
+  clearToken: () => {
     localStorage.removeItem("token");
   },
 

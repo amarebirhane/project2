@@ -47,8 +47,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/dashboard");
   };
 
-  const logout = () => {
-    authService.logout();
+  const logout = async () => {
+    try {
+      // Call backend to register logout in audit log
+      await authService.logout();
+    } catch {
+      // Ignore errors - always clear local session
+    }
+    authService.clearToken();
     setUser(null);
     router.push("/login");
   };
