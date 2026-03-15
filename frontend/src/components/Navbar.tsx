@@ -70,7 +70,7 @@ export default function Navbar({ isSidebarOpen }: NavbarProps) {
 
   return (
     <nav className={clsx(
-      "fixed top-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 transition-all duration-300",
+      "fixed top-0 right-0 z-50 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-all duration-300",
       isSidebarOpen ? "md:w-[calc(100%-16rem)]" : "md:w-[calc(100%-5rem)]",
       "w-full" // mobile full width
     )}>
@@ -79,7 +79,7 @@ export default function Navbar({ isSidebarOpen }: NavbarProps) {
           
           {/* Left Side: Welcome or Mobile Drawer Toggle (if needed) */}
           <div className="flex items-center flex-shrink-0 min-w-0">
-            <h1 className="text-lg font-bold text-slate-800 hidden lg:block whitespace-nowrap overflow-hidden text-ellipsis">
+            <h1 className="text-lg font-bold text-slate-800 dark:text-slate-100 hidden lg:block whitespace-nowrap overflow-hidden text-ellipsis">
               Welcome back, <span className="text-primary-600">{user.username}</span>
             </h1>
           </div>
@@ -91,7 +91,7 @@ export default function Navbar({ isSidebarOpen }: NavbarProps) {
               <input 
                 type="text" 
                 placeholder="Search everywhere..." 
-                className="w-full pl-10 pr-10 py-2 bg-slate-50 border border-slate-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-300 transition-all text-slate-800"
+                className="w-full pl-10 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 focus:border-primary-300 transition-all text-slate-800 dark:text-slate-100"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -116,7 +116,7 @@ export default function Navbar({ isSidebarOpen }: NavbarProps) {
                   setShowNotifications(!showNotifications);
                   setShowDropdown(false);
                 }}
-                className="p-2 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all relative group"
+                className="p-2 text-slate-500 dark:text-slate-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-full transition-all relative group"
               >
                 <Bell className="h-5 w-5 group-hover:scale-110 transition-transform" />
                 {unreadCount > 0 && (
@@ -125,9 +125,9 @@ export default function Navbar({ isSidebarOpen }: NavbarProps) {
               </button>
 
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-xl py-2 animate-fade-in z-50">
-                  <div className="flex justify-between items-center px-4 pb-2 border-b border-slate-100">
-                    <h3 className="font-bold text-slate-800 text-sm">Notifications</h3>
+                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-2 animate-fade-in z-50">
+                  <div className="flex justify-between items-center px-4 pb-2 border-b border-slate-100 dark:border-slate-800">
+                    <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Notifications</h3>
                     {unreadCount > 0 && (
                       <button onClick={markAllRead} className="text-[10px] font-bold text-primary-600 hover:text-primary-700 uppercase tracking-wider">
                         Mark all read
@@ -140,12 +140,12 @@ export default function Navbar({ isSidebarOpen }: NavbarProps) {
                         <div 
                           key={notification.id} 
                           onClick={() => !notification.is_read && markAsRead(notification.id)}
-                          className={`px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 ${notification.is_read ? 'opacity-60' : ''}`}
+                          className={`px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer border-b border-slate-50 dark:border-slate-800 last:border-0 ${notification.is_read ? 'opacity-60' : ''}`}
                         >
-                          <p className={`text-sm ${notification.is_read ? 'text-slate-600' : 'text-slate-900 font-semibold'}`}>
+                          <p className={`text-sm ${notification.is_read ? 'text-slate-600 dark:text-slate-400' : 'text-slate-900 dark:text-slate-100 font-semibold'}`}>
                             {notification.message}
                           </p>
-                          <p className="text-[10px] text-slate-400 mt-1">
+                          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
                             {new Date(notification.created_at).toLocaleDateString()}
                           </p>
                         </div>
@@ -154,8 +154,8 @@ export default function Navbar({ isSidebarOpen }: NavbarProps) {
                       <div className="px-4 py-6 text-center text-sm text-slate-500">No new notifications</div>
                     )}
                   </div>
-                  <div className="px-4 pt-2 border-t border-slate-100">
-                    <Link href="/settings" className="text-xs text-center block text-slate-500 hover:text-primary-600">
+                  <div className="px-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <Link href="/settings" className="text-xs text-center block text-slate-500 dark:text-slate-400 hover:text-primary-600">
                       Notification Settings
                     </Link>
                   </div>
@@ -180,26 +180,26 @@ export default function Navbar({ isSidebarOpen }: NavbarProps) {
                   )}
                 </div>
                 <div className="hidden sm:block text-left pr-2">
-                  <p className="text-xs font-bold text-slate-900 leading-tight">{user.username}</p>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-wider">{user.role}</p>
+                  <p className="text-xs font-bold text-slate-900 dark:text-slate-100 leading-tight">{user.username}</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider">{user.role}</p>
                 </div>
               </button>
               
               {showDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-1 animate-fade-in z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-1 animate-fade-in z-50">
                   <Link
                     href="/profile"
-                    className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                    className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
                     My Profile
                   </Link>
                   <Link
                     href="/settings"
-                    className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                    className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
                     Settings & Security
                   </Link>
-                  <hr className="my-1 border-slate-100" />
+                  <hr className="my-1 border-slate-100 dark:border-slate-800" />
                   <button
                     onClick={() => {
                       logout();

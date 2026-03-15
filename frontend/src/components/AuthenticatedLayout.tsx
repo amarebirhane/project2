@@ -33,14 +33,14 @@ export default function AuthenticatedLayout({
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
         <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
         <div className={clsx(
           "flex flex-col transition-all duration-300",
           isSidebarOpen ? "md:ml-64" : "md:ml-20"
         )}>
           <Navbar isSidebarOpen={isSidebarOpen} />
-          <main className="flex-1 p-4 lg:p-8 mt-16 animate-fade-in text-slate-900">
+          <main className="flex-1 p-4 lg:p-8 mt-16 animate-fade-in text-slate-900 dark:text-slate-100">
             {children}
           </main>
         </div>

@@ -17,8 +17,13 @@ import {
   AlertCircle,
   X,
   Lock,
-  CheckCircle2
+  CheckCircle2,
+  Sun,
+  Moon,
+  Monitor,
+  Palette
 } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 import { QRCodeSVG } from "qrcode.react";
 
 interface Setting {
@@ -30,6 +35,7 @@ interface Setting {
 
 export default function SettingsPage() {
   const { user } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState("general");
   const [settings, setSettings] = useState<Setting[]>([]);
   const [loading, setLoading] = useState(true);
@@ -125,6 +131,7 @@ export default function SettingsPage() {
 
   const tabs = [
     { id: "general", label: "General", icon: Globe },
+    { id: "appearance", label: "Appearance", icon: Palette },
     { id: "security", label: "Security", icon: Shield },
     { id: "notifications", label: "Notifications", icon: Bell },
   ];
@@ -141,8 +148,8 @@ export default function SettingsPage() {
             <SettingsIcon size={24} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Account Settings</h1>
-            <p className="text-slate-500">Manage your preferences and system configuration</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Account Settings</h1>
+            <p className="text-slate-500 dark:text-slate-400">Manage your preferences and system configuration</p>
           </div>
         </div>
 
@@ -155,8 +162,8 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                   activeTab === tab.id 
-                    ? "bg-primary-600 text-white shadow-lg shadow-primary-200" 
-                    : "text-slate-600 hover:bg-slate-100"
+                    ? "bg-primary-600 text-white shadow-lg shadow-primary-200 dark:shadow-none" 
+                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
               >
                 <tab.icon size={18} />
@@ -171,22 +178,63 @@ export default function SettingsPage() {
 
               {activeTab === "general" && (
                 <div className="space-y-8">
-                  <div className="flex justify-between items-center pb-4 border-b border-slate-100">
+                  <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
                     <div>
-                      <h3 className="font-bold text-slate-900">Personal Information</h3>
-                      <p className="text-sm text-slate-500">Update your account details</p>
+                      <h3 className="font-bold text-slate-900 dark:text-slate-100">Personal Information</h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">Update your account details</p>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-700">Display Name</label>
-                        <input type="text" className="input-base" defaultValue={`${user?.first_name} ${user?.last_name}`} />
+                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Display Name</label>
+                        <input type="text" className="input-base dark:bg-slate-900/50 dark:border-slate-700" defaultValue={`${user?.first_name} ${user?.last_name}`} />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-700">Email Address</label>
-                        <input type="email" className="input-base bg-slate-50" defaultValue={user?.email} disabled />
+                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Email Address</label>
+                        <input type="email" className="input-base bg-slate-50 dark:bg-slate-800 dark:border-slate-700" defaultValue={user?.email} disabled />
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "appearance" && (
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="font-bold text-slate-900 dark:text-slate-100">Appearance Settings</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Customize how the platform looks for you</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {[
+                      { id: 'light', label: 'Light', icon: Sun, desc: 'Classic bright look' },
+                      { id: 'dark', label: 'Dark', icon: Moon, desc: 'Easier on the eyes' },
+                      { id: 'system', label: 'System', icon: Monitor, desc: 'Follow device theme' },
+                    ].map((mode) => (
+                      <button
+                        key={mode.id}
+                        onClick={() => setTheme(mode.id as any)}
+                        className={`p-6 rounded-2xl border-2 transition-all text-left flex flex-col gap-4 ${
+                          theme === mode.id
+                            ? "border-primary-600 bg-primary-50/50 dark:bg-primary-900/20"
+                            : "border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50"
+                        }`}
+                      >
+                        <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${
+                          theme === mode.id 
+                            ? "bg-primary-600 text-white shadow-lg shadow-primary-200 dark:shadow-none" 
+                            : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-100 dark:border-slate-700"
+                        }`}>
+                          <mode.icon size={24} />
+                        </div>
+                        <div>
+                          <p className={`font-bold text-sm ${theme === mode.id ? "text-primary-900 dark:text-primary-100" : "text-slate-900 dark:text-slate-100"}`}>
+                            {mode.label} Mode
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{mode.desc}</p>
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}
@@ -205,8 +253,8 @@ export default function SettingsPage() {
                             <Lock size={20} />
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-slate-800">Account Password</p>
-                            <p className="text-xs text-slate-500">Update your account password</p>
+                            <p className="text-sm font-bold text-slate-800 dark:text-slate-200">Account Password</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">Update your account password</p>
                           </div>
                         </div>
                       </div>
@@ -217,25 +265,25 @@ export default function SettingsPage() {
                             e.preventDefault();
                             setShowPasswordEdit(true);
                           }}
-                          className="px-6 py-2 bg-primary-600 text-white rounded-xl text-sm font-bold hover:bg-primary-700 transition-all shadow-lg shadow-primary-100"
+                          className="px-6 py-2 bg-primary-600 text-white rounded-xl text-sm font-bold hover:bg-primary-700 transition-all shadow-lg shadow-primary-100 dark:shadow-none"
                         >
                           Change Password
                         </button>
                       </div>
                     </div>
-                    <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                    <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 bg-primary-100 rounded-xl flex items-center justify-center text-primary-600">
+                          <div className="h-10 w-10 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center text-primary-600 dark:text-primary-400">
                             <Shield size={20} />
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-slate-800">Two-Factor Authentication</p>
-                            <p className="text-xs text-slate-500">Protect your account with an extra verification layer</p>
+                            <p className="text-sm font-bold text-slate-800 dark:text-slate-200">Two-Factor Authentication</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">Protect your account with an extra verification layer</p>
                           </div>
                         </div>
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          user?.is_two_factor_enabled ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-600"
+                          user?.is_two_factor_enabled ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400" : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
                         }`}>
                           {user?.is_two_factor_enabled ? "Enabled" : "Disabled"}
                         </span>
@@ -261,8 +309,8 @@ export default function SettingsPage() {
               {activeTab === "system" && user?.role === "admin" && (
                 <div className="space-y-8">
                   <div>
-                    <h3 className="font-bold text-slate-900">System Configuration</h3>
-                    <p className="text-sm text-slate-500">Global settings for the platform</p>
+                    <h3 className="font-bold text-slate-900 dark:text-slate-100">System Configuration</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Global settings for the platform</p>
                   </div>
                   
                   <div className="space-y-6">
@@ -271,14 +319,14 @@ export default function SettingsPage() {
                     ) : settings.length > 0 ? (
                       settings.map(setting => (
                         <div key={setting.key} className="space-y-2">
-                          <label className="text-sm font-semibold text-slate-700 flex justify-between">
+                          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex justify-between">
                             {setting.key.replace(/_/g, " ").toUpperCase()}
-                            {setting.is_public && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">Public</span>}
+                            {setting.is_public && <span className="text-[10px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full">Public</span>}
                           </label>
                           <div className="flex gap-2">
                             <input 
                               type="text" 
-                              className="input-base flex-1" 
+                              className="input-base dark:bg-slate-900/50 dark:border-slate-700 flex-1" 
                               value={setting.value} 
                               onChange={(e) => {
                                 const newVal = e.target.value;
@@ -287,17 +335,17 @@ export default function SettingsPage() {
                             />
                             <button 
                               onClick={() => handleUpdate(setting.key, setting.value)}
-                              className="px-4 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl transition-all"
+                              className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-all"
                             >
                               <Save size={18} />
                             </button>
                           </div>
-                          {setting.description && <p className="text-xs text-slate-500">{setting.description}</p>}
+                          {setting.description && <p className="text-xs text-slate-500 dark:text-slate-400">{setting.description}</p>}
                         </div>
                       ))
                     ) : (
-                      <div className="text-center py-12 p-6 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
-                        <p className="text-slate-500">No system settings found.</p>
+                      <div className="text-center py-12 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
+                        <p className="text-slate-500 dark:text-slate-400">No system settings found.</p>
                         <button className="mt-4 btn-primary-outline text-xs">Create Initial Settings</button>
                       </div>
                     )}
@@ -320,10 +368,10 @@ export default function SettingsPage() {
         {/* Change Password Modal */}
         {showPasswordEdit && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in">
-            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm cursor-pointer" onClick={() => setShowPasswordEdit(false)}></div>
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-slide-up relative z-10">
-              <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <h3 className="font-bold text-slate-900">Change Password</h3>
+            <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm cursor-pointer" onClick={() => setShowPasswordEdit(false)}></div>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-slide-up relative z-10">
+              <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                <h3 className="font-bold text-slate-900 dark:text-slate-100">Change Password</h3>
                 <button onClick={() => setShowPasswordEdit(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                   <X size={20} />
                 </button>
@@ -362,7 +410,7 @@ export default function SettingsPage() {
                 <div className="pt-4 flex gap-3">
                   <button 
                     onClick={() => setShowPasswordEdit(false)}
-                    className="flex-1 px-4 py-2.5 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all text-sm"
+                    className="flex-1 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-sm"
                   >
                     Cancel
                   </button>
@@ -383,10 +431,10 @@ export default function SettingsPage() {
         {/* 2FA Setup Modal */}
         {show2FASetup && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in">
-            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm cursor-pointer" onClick={() => setShow2FASetup(false)}></div>
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-slide-up relative z-10">
-              <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <h3 className="font-bold text-slate-900 flex items-center gap-2">
+            <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm cursor-pointer" onClick={() => setShow2FASetup(false)}></div>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-slide-up relative z-10">
+              <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <Shield size={20} className="text-primary-600" />
                   Enable Two-Factor Authentication
                 </h3>
@@ -395,10 +443,10 @@ export default function SettingsPage() {
                 </button>
               </div>
               <div className="p-6 space-y-6">
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col items-center">
-                  <p className="text-xs font-bold text-slate-700 mb-3 text-center">1. Scan this QR Code with your Authenticator App</p>
+                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col items-center">
+                  <p className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-3 text-center">1. Scan this QR Code with your Authenticator App</p>
                   {qrCode ? (
-                    <div className="bg-white p-2 border border-slate-100 rounded-lg shadow-sm">
+                    <div className="bg-white p-2 border border-slate-100 dark:border-slate-700 rounded-lg shadow-sm">
                       <QRCodeSVG value={qrCode} size={150} level="M" />
                     </div>
                   ) : (
@@ -406,11 +454,11 @@ export default function SettingsPage() {
                         <Loader2 className="animate-spin text-primary-600" />
                     </div>
                   )}
-                  <p className="text-[10px] text-slate-400 mt-2 font-mono text-center">{setupData?.secret}</p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono text-center">{setupData?.secret}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-700">2. Enter Verification Code</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">2. Enter Verification Code</label>
                   <div className="flex gap-2">
                     <input 
                       type="text" 

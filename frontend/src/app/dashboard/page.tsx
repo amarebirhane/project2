@@ -67,18 +67,18 @@ export default function DashboardPage() {
   }));
 
   const stats = [
-    { label: "Total Tasks", value: data.total_tasks, icon: TrendingUp, color: "text-blue-600", bg: "bg-blue-50" },
-    { label: "Completed", value: data.completed_tasks, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
-    { label: "Pending", value: data.pending_tasks, icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
-    { label: "Efficiency", value: `${data.total_tasks ? Math.round((data.completed_tasks / data.total_tasks) * 100) : 0}%`, icon: AlertCircle, color: "text-purple-600", bg: "bg-purple-50" },
+    { label: "Total Tasks", value: data.total_tasks, icon: TrendingUp, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-900/20" },
+    { label: "Completed", value: data.completed_tasks, icon: CheckCircle2, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-900/20" },
+    { label: "Pending", value: data.pending_tasks, icon: Clock, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-900/20" },
+    { label: "Efficiency", value: `${data.total_tasks ? Math.round((data.completed_tasks / data.total_tasks) * 100) : 0}%`, icon: AlertCircle, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-900/20" },
   ];
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+      <div className="flex justify-between items-center bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Enterprise Overview</h2>
-          <p className="text-sm text-slate-500">Your central command for all operations</p>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Enterprise Overview</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Your central command for all operations</p>
         </div>
         <div className="flex gap-3">
           {user?.role === "user" && <Link href="/dashboard/my-tasks" className="btn-primary py-2 px-4 text-sm">My Workplace</Link>}
@@ -94,8 +94,8 @@ export default function DashboardPage() {
               <stat.icon className={`h-6 w-6 ${stat.color}`} />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-500">{stat.label}</p>
-              <h3 className="text-2xl font-bold text-slate-900">{stat.value}</h3>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{stat.label}</p>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stat.value}</h3>
             </div>
           </div>
         ))}
@@ -103,16 +103,16 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="card-premium p-6">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">Task Priority Distribution</h3>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-6">Task Priority Distribution</h3>
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={priorityData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#64748b" }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: "#64748b" }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#94a3b8" }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94a3b8" }} />
                 <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                  cursor={{ fill: '#f8fafc' }}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: '#0f172a', color: '#f8fafc' }}
+                  cursor={{ fill: '#1e293b' }}
                 />
                 <Bar dataKey="value" fill="#0ea5e9" radius={[6, 6, 0, 0]} />
               </BarChart>
@@ -121,7 +121,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="card-premium p-6">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">Task Status Overview</h3>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-6">Task Status Overview</h3>
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
