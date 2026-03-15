@@ -1,5 +1,5 @@
 from typing import Any
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -8,6 +8,7 @@ from app.services.auth_service import auth_service
 from app.services.audit_service import audit_service
 from app.schemas.user_schema import UserCreate, UserResponse, PasswordResetRequest, PasswordReset
 from app.core.dependencies import limiter
+from app.services.email_service import email_service
 
 router = APIRouter()
 
@@ -15,6 +16,7 @@ router = APIRouter()
 @limiter.limit("5/minute")
 def register(
     request: Request,
+    background_tasks: BackgroundTasks,
     *,
     db: Session = Depends(deps.get_db),
     user_in: UserCreate,
@@ -22,7 +24,17 @@ def register(
     """
     Create new user.
     """
-    return auth_service.register_new_user(db, user_in)
+    user = auth_service.register_new_user(db, user_in)
+    
+    # Send welcome email in the background
+    background_tasks.add_task(
+        email_service.send_simulated_email,
+        to_email=user.email,
+        subject="Welcome to TaskMind!",
+        body=f"Hi {user.first_name}, your account has been created successfully."
+    )
+    
+    return user
 
 @router.post("/login")
 @limiter.limit("5/minute")
