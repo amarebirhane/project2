@@ -18,4 +18,35 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Response interceptor for global errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      const status = error.response.status;
+      
+      if (status === 401) {
+        // Auth expired or invalid
+        if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+          localStorage.removeItem("token");
+          window.dispatchEvent(new CustomEvent('show-toast', { 
+            detail: { message: 'Your session has expired. Please login again.', type: 'error', title: 'Session Expired' } 
+          }));
+          setTimeout(() => {
+            window.location.href = "/login?expired=true";
+          }, 1500);
+        }
+      } else if (status === 429) {
+        // Rate limited
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent('show-toast', { 
+            detail: { message: 'You are moving too fast. Please slow down and try again in a minute.', type: 'warning', title: 'Slow Down' } 
+          }));
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;

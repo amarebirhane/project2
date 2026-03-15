@@ -31,6 +31,17 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }, 5000);
   }, []);
 
+  // Event bridge for non-React code (e.g., Axios interceptors)
+  useEffect(() => {
+    const handleGlobalToast = (e: any) => {
+      const { message, type, title } = e.detail;
+      addToast(message, type, title);
+    };
+
+    window.addEventListener('show-toast', handleGlobalToast);
+    return () => window.removeEventListener('show-toast', handleGlobalToast);
+  }, [addToast]);
+
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);

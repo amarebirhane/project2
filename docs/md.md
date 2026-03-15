@@ -1,0 +1,1 @@
+is the frontend is working well and properly as professional and what missing in the frontend from implement

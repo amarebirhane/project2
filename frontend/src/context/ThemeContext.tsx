@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 type Theme = "light" | "dark" | "system";
 
@@ -14,6 +15,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("system");
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as Theme | null;
@@ -27,15 +29,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (!mounted) return;
 
     const root = window.document.documentElement;
-    const path = window.location.pathname;
     
     // Pages to exclude from theme (keep them light or default)
     const excludedPages = ["/", "/login", "/register", "/forgot-password"];
-    const isExcluded = excludedPages.includes(path);
+    const isExcluded = excludedPages.includes(pathname);
 
     const applyTheme = (t: Theme) => {
-      const isExcluded = ["/", "/login", "/register", "/forgot-password"].includes(window.location.pathname);
-      
       if (isExcluded) {
         root.classList.remove("dark");
         return;
@@ -54,13 +53,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     applyTheme(theme);
     localStorage.setItem("theme", theme);
 
-    if (theme === "system") {
+    if (theme === "system" && !isExcluded) {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
       const handleChange = () => applyTheme("system");
       mediaQuery.addEventListener("change", handleChange);
       return () => mediaQuery.removeEventListener("change", handleChange);
     }
-  }, [theme, mounted]);
+  }, [theme, mounted, pathname]);
 
   const setTheme = (t: Theme) => {
     setThemeState(t);
