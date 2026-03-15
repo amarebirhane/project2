@@ -19,6 +19,35 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('theme');
+                  var supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  var excludedPages = ["/", "/login", "/register", "/forgot-password"];
+                  var isExcluded = excludedPages.includes(window.location.pathname);
+                  
+                  if (isExcluded) {
+                    document.documentElement.classList.remove('dark');
+                    return;
+                  }
+
+                  if (theme === 'dark' || (theme === 'system' && supportDarkMode)) {
+                    document.documentElement.classList.add('dark');
+                  } else if (theme === 'light') {
+                    document.documentElement.classList.remove('dark');
+                  } else if (!theme && supportDarkMode) {
+                    document.documentElement.classList.add('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className={inter.className}>
         <AuthProvider>
           <ThemeProvider>

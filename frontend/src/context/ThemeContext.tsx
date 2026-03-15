@@ -34,6 +34,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const isExcluded = excludedPages.includes(path);
 
     const applyTheme = (t: Theme) => {
+      const isExcluded = ["/", "/login", "/register", "/forgot-password"].includes(window.location.pathname);
+      
       if (isExcluded) {
         root.classList.remove("dark");
         return;
