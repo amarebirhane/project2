@@ -16,3 +16,4 @@ pyotp>=2.9.0
 redis>=5.0.1
 celery>=5.3.4
 boto3>=1.28.44
+gunicorn>=21.2.0
