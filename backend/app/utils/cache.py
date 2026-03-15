@@ -1,55 +1,56 @@
-import time
 import functools
 import logging
-from typing import Any, Optional, Union
+import hashlib
+from typing import Any, Optional
+from app.services.redis_service import redis_service
 
 logger = logging.getLogger("app.cache")
 
-# Simple In-Memory storage if Redis is not available
-_memory_cache = {}
-
 def cache(expire: int = 300):
     """
-    Standard professional caching decorator.
-    Can be expanded to use Redis. For now, provides a robust in-memory fallback.
+    Standard professional caching decorator that uses Redis.
+    Falls back to normal execution if Redis is unavailable.
     """
     def decorator(func):
         @functools.wraps(func)
-        async def wrapper(*args, **kwargs):
-            # Generate a unique key based on function name and arguments
-            cache_key = f"{func.__name__}:{str(args)}:{str(kwargs)}"
+        async def async_wrapper(*args, **kwargs):
+            # Generate a unique key based on function name and hashed arguments
+            args_str = f"{str(args)}:{str(kwargs)}"
+            args_hash = hashlib.md5(args_str.encode()).hexdigest()
+            cache_key = f"cache:{func.__name__}:{args_hash}"
             
             # Check cache
-            if cache_key in _memory_cache:
-                value, timestamp = _memory_cache[cache_key]
-                if time.time() - timestamp < expire:
-                    logger.info(f"Cache HIT for {func.__name__}")
-                    return value
+            cached_value = redis_service.get(cache_key)
+            if cached_value is not None:
+                logger.info(f"Cache HIT for {func.__name__}")
+                return cached_value
             
             # Cache MISS
             logger.info(f"Cache MISS for {func.__name__}. Executing...")
             result = await func(*args, **kwargs)
             
             # Store in cache
-            _memory_cache[cache_key] = (result, time.time())
+            redis_service.set(cache_key, result, expire=expire)
             return result
         
-        # Sync version for regular functions
         @functools.wraps(func)
         def sync_wrapper(*args, **kwargs):
-            cache_key = f"{func.__name__}:{str(args)}:{str(kwargs)}"
-            if cache_key in _memory_cache:
-                value, timestamp = _memory_cache[cache_key]
-                if time.time() - timestamp < expire:
-                    return value
+            args_str = f"{str(args)}:{str(kwargs)}"
+            args_hash = hashlib.md5(args_str.encode()).hexdigest()
+            cache_key = f"cache:{func.__name__}:{args_hash}"
+            
+            cached_value = redis_service.get(cache_key)
+            if cached_value is not None:
+                logger.info(f"Cache HIT for {func.__name__}")
+                return cached_value
+                
             result = func(*args, **kwargs)
-            _memory_cache[cache_key] = (result, time.time())
+            redis_service.set(cache_key, result, expire=expire)
             return result
 
-            
         import inspect
         if inspect.iscoroutinefunction(func):
-            return wrapper
+            return async_wrapper
         return sync_wrapper
         
     return decorator
