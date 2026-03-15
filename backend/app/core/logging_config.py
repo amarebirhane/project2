@@ -3,15 +3,12 @@ import sys
 import uuid
 from typing import Any
 
-class RequestContextFilter(logging.Filter):
-    """Filter that adds a unique request_id to every log record."""
-    def __init__(self):
-        super().__init__()
-        self.request_id = str(uuid.uuid4())
-
-    def filter(self, record):
-        record.request_id = getattr(record, "request_id", self.request_id)
-        return True
+class RequestFormatter(logging.Formatter):
+    """Custom formatter that handles missing request_id gracefully."""
+    def format(self, record):
+        if not hasattr(record, "request_id"):
+            record.request_id = "SYSTEM"
+        return super().format(record)
 
 def setup_logging():
     """Configures the root logger with a professional format."""
@@ -21,18 +18,22 @@ def setup_logging():
     )
     
     handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter(log_format))
+    handler.setFormatter(RequestFormatter(log_format))
     
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
+    
+    # Remove existing handlers to avoid duplicates
+    for h in list(root_logger.handlers):
+        root_logger.removeHandler(h)
+        
     root_logger.addHandler(handler)
     
-    # Add request ID filter to all logs
-    root_logger.addFilter(RequestContextFilter())
-    
-    # Clean up standard FastAPI/Uvicorn access logs to match
-    logging.getLogger("uvicorn.access").handlers = [handler]
-    logging.getLogger("fastapi").handlers = [handler]
+    # Clean up standard FastAPI/Uvicorn/Alembic logs to match
+    for log_name in ["uvicorn", "uvicorn.access", "uvicorn.error", "fastapi", "alembic"]:
+        l = logging.getLogger(log_name)
+        l.handlers = [handler]
+        l.propagate = False
 
 setup_logging()
 logger = logging.getLogger("app")

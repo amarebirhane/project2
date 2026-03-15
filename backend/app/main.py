@@ -1,4 +1,5 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -19,10 +20,29 @@ setup_logging()
 
 from app.core.config import settings
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Run migrations and seed data at startup."""
+    from app.db.alembic_utils import run_upgrade
+    from app.db.database import SessionLocal
+    from app.db.init_db import init_db
+    print("Starting database migrations...", flush=True)
+    run_upgrade()
+    print("Migrations complete. Initializing database...", flush=True)
+    try:
+        with SessionLocal() as db:
+            init_db(db)
+        print("Database initialization complete.", flush=True)
+    except Exception as e:
+        print(f"Error during initialization: {e}", flush=True)
+    
+    yield
+
 # Create app and register CORS FIRST — before any imports that could fail
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    lifespan=lifespan
 )
 
 # CORS — must be added before routes. Allow frontend origin.
@@ -76,15 +96,6 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
     except WebSocketDisconnect:
         socket_manager.disconnect(websocket, user_id)
 
-@app.on_event("startup")
-async def on_startup():
-    """Run migrations and seed data at startup."""
-    from app.db.alembic_utils import run_upgrade
-    from app.db.database import SessionLocal
-    from app.db.init_db import init_db
-    run_upgrade()
-    with SessionLocal() as db:
-        init_db(db)
 
 
 @app.get("/")
