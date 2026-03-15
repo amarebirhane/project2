@@ -105,7 +105,7 @@ export default function SettingsPage() {
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
-      setMessage({ type: "error", text: "New passwords do not match." });
+      addToast("New passwords do not match.", "error");
       return;
     }
     setSaving(true);

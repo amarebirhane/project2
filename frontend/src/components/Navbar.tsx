@@ -6,6 +6,7 @@ import { LogOut, User as UserIcon, Bell, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { notificationService, Notification } from "@/services/notificationService";
+import { useToasts } from "@/components/Toast";
 import { clsx } from "clsx";
 
 interface NavbarProps {
@@ -19,6 +20,7 @@ export default function Navbar({ isSidebarOpen }: NavbarProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const { addToast } = useToasts();
 
   useEffect(() => {
     if (user) {
@@ -199,7 +201,10 @@ export default function Navbar({ isSidebarOpen }: NavbarProps) {
                   </Link>
                   <hr className="my-1 border-slate-100" />
                   <button
-                    onClick={logout}
+                    onClick={() => {
+                      logout();
+                      addToast("Signed out successfully", "info");
+                    }}
                     className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                   >
                     <LogOut className="h-4 w-4 mr-2" />
