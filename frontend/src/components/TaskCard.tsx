@@ -14,6 +14,7 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { clsx } from "clsx";
+import TaskDetailView from "./TaskDetailView";
 
 interface TaskCardProps {
   task: Task;
@@ -36,6 +37,7 @@ const statusIcons = {
 
 export default function TaskCard({ task, onDelete, onEdit, onStatusChange }: TaskCardProps) {
   const [showOptions, setShowOptions] = React.useState(false);
+  const [showDetail, setShowDetail] = React.useState(false);
   const StatusIcon = statusIcons[task.status as keyof typeof statusIcons] || Clock;
 
   return (
@@ -77,14 +79,14 @@ export default function TaskCard({ task, onDelete, onEdit, onStatusChange }: Tas
           </div>
         </div>
 
-        <Link href={`/tasks/${task.id}`}>
-          <h3 className="text-lg font-bold text-slate-800 mb-1 group-hover:text-primary-600 transition-colors cursor-pointer hover:underline">
+        <div className="cursor-pointer" onClick={() => setShowDetail(true)}>
+          <h3 className="text-lg font-bold text-slate-800 mb-1 group-hover:text-primary-600 transition-colors">
             {task.title}
           </h3>
-        </Link>
-        <p className="text-sm text-slate-500 line-clamp-2 mb-4">
-          {task.description || "No description provided."}
-        </p>
+          <p className="text-sm text-slate-500 line-clamp-2 mb-4">
+            {task.description || "No description provided."}
+          </p>
+        </div>
 
         <div className="flex items-center justify-between pt-4 border-t border-slate-100">
           <div className="flex items-center text-slate-400 text-xs">
@@ -106,6 +108,13 @@ export default function TaskCard({ task, onDelete, onEdit, onStatusChange }: Tas
           </button>
         </div>
       </div>
+
+      {showDetail && (
+        <TaskDetailView 
+          task={task} 
+          onClose={() => setShowDetail(false)} 
+        />
+      )}
     </div>
   );
 }
