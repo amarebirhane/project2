@@ -1,10 +1,15 @@
-from typing import Any
+from typing import Any, Optional
+from datetime import datetime
+from sqlalchemy import Column, DateTime
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 
 @as_declarative()
 class Base:
     id: Any
     __name__: str
+    
+    # Soft delete support
+    deleted_at = Column(DateTime, nullable=True)
     
     # Generate __tablename__ automatically
     @declared_attr
