@@ -52,7 +52,9 @@ export default function RootLayout({
         <AuthProvider>
           <ThemeProvider>
             <ToastProvider>
-              {children}
+              <SocketProvider>
+                {children}
+              </SocketProvider>
             </ToastProvider>
           </ThemeProvider>
         </AuthProvider>
