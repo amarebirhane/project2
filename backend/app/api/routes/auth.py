@@ -38,9 +38,6 @@ def login(
             detail="Incorrect email/username or password"
         )
     
-    if user.is_two_factor_enabled:
-        return {"msg": "2FA required", "2fa_required": True, "user_id": str(user.id)}
-
     audit_service.log(db, user_id=user.id, username=user.username, action="login")
     return auth_service.create_login_token(str(user.id))
 
@@ -85,44 +82,43 @@ def verify_2fa_setup(
         return {"msg": "2FA enabled successfully"}
     raise HTTPException(status_code=400, detail="Invalid 2FA code")
 
-@router.post("/2fa/login")
-def login_2fa(
-    db: Session = Depends(deps.get_db),
-    user_id: str = Query(...),
-    code: str = Query(...)
-) -> Any:
-    """
-    Login with 2FA code.
-    """
-    from app.crud.user_crud import get_user
-    user = get_user(db, user_id=user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    if auth_service.verify_2fa(user, code):
-        audit_service.log(db, user_id=user.id, username=user.username, action="login_2fa")
-        return auth_service.create_login_token(str(user.id))
-    
-    audit_service.log(db, user_id=user.id, username=user.username, action="2fa_login_failed")
-    raise HTTPException(status_code=400, detail="Invalid 2FA code")
 
 @router.post("/password-reset/request")
 def request_password_reset(
-    data: PasswordResetRequest
+    data: PasswordResetRequest,
+    db: Session = Depends(deps.get_db)
 ) -> Any:
     """
-    Generate a password reset token. In a real app, this would be emailed.
+    Request a password reset. Returns a token. If user has 2FA enabled,
+    the client must also pass the 2FA code when resetting.
     """
+    from app.crud.user_crud import get_user_by_email
+    user = get_user_by_email(db, email=data.email)
     token = auth_service.create_password_reset_token(data.email)
-    return {"msg": "Password reset token generated", "token": token}
+    has_2fa = user.is_two_factor_enabled if user else False
+    return {"msg": "Password reset token generated", "token": token, "2fa_required": has_2fa}
 
 @router.post("/password-reset/reset")
 def reset_password(
     data: PasswordReset,
-    db: Session = Depends(deps.get_db)
+    db: Session = Depends(deps.get_db),
+    two_fa_code: str = Query(None, alias="code")
 ) -> Any:
     """
-    Reset password using a token.
+    Reset password using a token. If user has 2FA enabled, requires a valid 2FA code.
     """
+    from app.crud.user_crud import get_user_by_email
+    from app.utils.token import verify_reset_token
+    # Decode the token to get the email so we can check 2FA status
+    email = verify_reset_token(data.token)
+    if not email:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    user = get_user_by_email(db, email=email)
+    if user and user.is_two_factor_enabled:
+        if not two_fa_code:
+            raise HTTPException(status_code=400, detail="2FA code required for password reset")
+        if not auth_service.verify_2fa(user, two_fa_code):
+            raise HTTPException(status_code=400, detail="Invalid 2FA code")
     auth_service.reset_password(db, token=data.token, new_password=data.new_password)
+    audit_service.log(db, user_id=user.id if user else None, username=user.username if user else None, action="password_reset")
     return {"msg": "Password updated successfully"}
