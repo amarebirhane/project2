@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { collaborationService } from '../services/collaborationService';
-import userService from '../services/userService';
+import { userService } from '../services/userService';
 import { TaskShare } from '../types/task';
 import { User } from '../types/user';
 
