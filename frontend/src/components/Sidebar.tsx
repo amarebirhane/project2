@@ -13,7 +13,8 @@ import {
   Menu,
   X,
   TrendingUp,
-  User
+  User,
+  Activity
 } from "lucide-react";
 import { clsx } from "clsx";
 

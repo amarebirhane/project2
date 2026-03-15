@@ -59,4 +59,19 @@ export const authService = {
     const response = await api.post("/auth/password-reset/reset", data);
     return response.data;
   },
+
+  setup2FA: async (): Promise<{ secret: string; provisioning_uri: string }> => {
+    const response = await api.post("/auth/2fa/setup");
+    return response.data;
+  },
+
+  verify2FA: async (code: string): Promise<any> => {
+    const response = await api.post(`/auth/2fa/verify?code=${code}`);
+    return response.data;
+  },
+
+  login2FA: async (userId: string, code: string): Promise<AuthResponse> => {
+    const response = await api.post<AuthResponse>(`/auth/2fa/login?user_id=${userId}&code=${code}`);
+    return response.data;
+  },
 };
