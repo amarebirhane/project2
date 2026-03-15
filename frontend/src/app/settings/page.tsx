@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/services/api";
+import { authService } from "@/features/auth/authService";
 import { 
   Settings as SettingsIcon, 
   Shield, 
@@ -30,6 +31,12 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  
+  // 2FA States
+  const [show2FASetup, setShow2FASetup] = useState(false);
+  const [setupData, setSetupData] = useState<{ secret: string; provisioning_uri: string } | null>(null);
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [twoFactorCode, setTwoFactorCode] = useState("");
 
   useEffect(() => {
     fetchSettings();
@@ -57,6 +64,33 @@ export default function SettingsPage() {
     } catch (error) {
       setSettings(originalSettings);
       setMessage({ type: "error", text: "Failed to save settings." });
+    }
+  };
+
+  const handleSetup2FA = async () => {
+    try {
+      const data = await authService.setup2FA();
+      setSetupData(data);
+      setShow2FASetup(true);
+      // In a real app, generate QR code from provisioning_uri here
+      setQrCode("simulated-qr-code");
+    } catch (error) {
+      setMessage({ type: "error", text: "Failed to initialize 2FA setup." });
+    }
+  };
+
+  const handleVerify2FA = async () => {
+    setSaving(true);
+    try {
+      await authService.verify2FA(twoFactorCode);
+      setMessage({ type: "success", text: "Two-Factor Authentication enabled successfully!" });
+      setShow2FASetup(false);
+      // Reload user to update global state
+      window.location.reload();
+    } catch (error) {
+      setMessage({ type: "error", text: "Invalid code. Please try again." });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -146,12 +180,76 @@ export default function SettingsPage() {
                   </div>
                   <div className="space-y-4">
                     <button className="btn-primary-outline w-full sm:w-auto px-6">Change Password</button>
-                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                      <p className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                        <Shield size={16} className="text-primary-600" /> Two-Factor Authentication
-                      </p>
-                      <p className="text-xs text-slate-500 mt-1">Add an extra layer of security to your account.</p>
-                      <button className="mt-3 text-sm font-bold text-primary-600 hover:text-primary-700">Coming Soon</button>
+                    <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 bg-primary-100 rounded-xl flex items-center justify-center text-primary-600">
+                            <Shield size={20} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-slate-800">Two-Factor Authentication</p>
+                            <p className="text-xs text-slate-500">Protect your account with an extra verification layer</p>
+                          </div>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          user?.is_two_factor_enabled ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-600"
+                        }`}>
+                          {user?.is_two_factor_enabled ? "Enabled" : "Disabled"}
+                        </span>
+                      </div>
+
+                      {user?.is_two_factor_enabled ? (
+                        <p className="text-sm text-slate-600">Your account is secured with 2FA.</p>
+                      ) : (
+                        <div className="space-y-4">
+                          {!show2FASetup ? (
+                            <button 
+                              onClick={handleSetup2FA}
+                              className="px-6 py-2 bg-primary-600 text-white rounded-xl text-sm font-bold hover:bg-primary-700 transition-all shadow-lg shadow-primary-100"
+                            >
+                              Enable 2FA
+                            </button>
+                          ) : (
+                            <div className="space-y-6 pt-2 animate-slide-up">
+                              <div className="p-4 bg-white rounded-xl border border-slate-100 flex flex-col items-center">
+                                <p className="text-xs font-bold text-slate-700 mb-3">Scan this QR Code with your App</p>
+                                {qrCode ? (
+                                  <div className="bg-white p-2 border border-slate-100 rounded-lg">
+                                    {/* In a real app, use a QR component. Here we'll simulate */}
+                                    <div className="w-32 h-32 bg-slate-100 flex items-center justify-center text-[10px] text-slate-400 text-center px-4">
+                                      QR Code Placeholder
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <Loader2 className="animate-spin text-primary-600" />
+                                )}
+                                <p className="text-[10px] text-slate-400 mt-2 font-mono">{setupData?.secret}</p>
+                              </div>
+
+                              <div className="space-y-2">
+                                <label className="text-xs font-bold text-slate-700">Verification Code</label>
+                                <div className="flex gap-2">
+                                  <input 
+                                    type="text" 
+                                    maxLength={6}
+                                    placeholder="000000"
+                                    className="input-base text-center tracking-[0.5em] font-bold" 
+                                    value={twoFactorCode}
+                                    onChange={(e) => setTwoFactorCode(e.target.value)}
+                                  />
+                                  <button 
+                                    onClick={handleVerify2FA}
+                                    disabled={twoFactorCode.length !== 6 || saving}
+                                    className="px-6 py-2 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 disabled:opacity-50 transition-all"
+                                  >
+                                    {saving ? <Loader2 size={18} className="animate-spin" /> : "Verify"}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
