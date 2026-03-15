@@ -14,6 +14,7 @@ const TaskDetailView: React.FC<TaskDetailViewProps> = ({ task, onUpdate, onClose
   const [attachments, setAttachments] = useState<Attachment[]>(task.attachments || []);
   const [shares, setShares] = useState<TaskShare[]>(task.shares || []);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -38,13 +39,19 @@ const TaskDetailView: React.FC<TaskDetailViewProps> = ({ task, onUpdate, onClose
     if (!file) return;
 
     setUploading(true);
+    setUploadProgress(0);
     try {
-      await attachmentService.uploadAttachment(task.id, file);
+      await attachmentService.uploadAttachment(task.id, file, (percent) => {
+        setUploadProgress(percent);
+      });
       fetchData();
     } catch (err) {
       alert('Upload failed');
     } finally {
-      setUploading(false);
+      setTimeout(() => {
+        setUploading(false);
+        setUploadProgress(0);
+      }, 1000);
     }
   };
 
@@ -123,10 +130,19 @@ const TaskDetailView: React.FC<TaskDetailViewProps> = ({ task, onUpdate, onClose
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                   </svg>
-                  Add File
+                  {uploading ? `Uploading ${uploadProgress}%` : 'Add File'}
                   <input type="file" className="hidden" onChange={handleFileUpload} disabled={uploading} />
                 </label>
               </div>
+
+              {uploading && (
+                <div className="mb-4 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-blue-500 transition-all duration-300" 
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-3">
                 {attachments.length === 0 ? (
@@ -139,17 +155,23 @@ const TaskDetailView: React.FC<TaskDetailViewProps> = ({ task, onUpdate, onClose
                 ) : (
                   attachments.map((file) => (
                     <div key={file.id} className="group relative bg-gray-50 dark:bg-gray-700/50 p-3 rounded-2xl border border-gray-100 dark:border-gray-600 hover:border-blue-200 transition-all">
-                      <div className="flex items-center gap-3">
+                      <a 
+                        href={file.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 cursor-pointer group-hover:no-underline"
+                        title="Download file"
+                      >
                         <div className="h-10 w-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
                           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                           </svg>
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{file.file_name}</p>
+                          <p className="text-xs font-bold text-gray-900 dark:text-white truncate group-hover:text-blue-600 transition-colors">{file.file_name}</p>
                           <p className="text-[10px] text-gray-500 uppercase">{(file.file_size / 1024).toFixed(1)} KB</p>
                         </div>
-                      </div>
+                      </a>
                       <button 
                         onClick={() => handleDeleteAttachment(file.id)}
                         className="absolute -top-2 -right-2 bg-white dark:bg-gray-800 text-red-500 p-1 rounded-full shadow-md border border-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
