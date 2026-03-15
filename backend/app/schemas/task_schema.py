@@ -24,13 +24,13 @@ class TaskCreate(TaskBase):
     pass
 
 class TaskUpdate(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
-    priority: Optional[str] = None
-    status: Optional[str] = None
-    deadline: Optional[datetime] = None
-    category_id: Optional[UUID] = None
-    user_id: Optional[UUID] = None
+    title: Optional[str] = Field(None, description="Updated headline for the task")
+    description: Optional[str] = Field(None, description="Updated detailed explanation")
+    priority: Optional[str] = Field(None, description="Updated urgency level")
+    status: Optional[str] = Field(None, description="Updated execution state")
+    deadline: Optional[datetime] = Field(None, description="Updated target completion date")
+    category_id: Optional[UUID] = Field(None, description="Updated category association")
+    user_id: Optional[UUID] = Field(None, description="Owner of the task (usually system-set)")
 
     @field_validator('title', 'description', mode='before')
     @classmethod
@@ -40,10 +40,10 @@ class TaskUpdate(BaseModel):
         return v
 
 class TaskResponse(TaskBase):
-    id: UUID
-    user_id: UUID
-    created_at: datetime
-    category: Optional[CategoryResponse] = None
+    id: UUID = Field(..., description="Unique persistent identifier for the task")
+    user_id: UUID = Field(..., description="The ID of the user who owns this task")
+    created_at: datetime = Field(..., description="Timestamp of when the task was initially created")
+    category: Optional[CategoryResponse] = Field(None, description="Full category object if associated")
 
     class Config:
         from_attributes = True
