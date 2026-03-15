@@ -1,16 +1,17 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from app.models.task import Task
 from app.schemas.task_schema import TaskCreate, TaskUpdate
 
-def get_tasks(db: Session, skip: int = 0, limit: int = 100, search: str = None):
+def get_tasks(db: Session, skip: int = 0, limit: int = 100, search: Optional[str] = None):
     query = db.query(Task)
     if search:
         search_filter = f"%{search}%"
         query = query.filter(or_(Task.title.ilike(search_filter), Task.description.ilike(search_filter)))
     return query.offset(skip).limit(limit).all()
 
-def get_user_tasks(db: Session, user_id: str, skip: int = 0, limit: int = 100, search: str = None):
+def get_user_tasks(db: Session, user_id: str, skip: int = 0, limit: int = 100, search: Optional[str] = None):
     query = db.query(Task).filter(Task.user_id == user_id)
     if search:
         search_filter = f"%{search}%"

@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { LogOut, User as UserIcon, Bell, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { notificationService, Notification } from "@/services/notificationService";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -12,30 +13,53 @@ export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  // Mock notifications since no backend endpoint was found for it yet
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: "System maintenance at midnight", read: false, time: "2h ago" },
-    { id: 2, text: "Your password was successfully updated", read: true, time: "5h ago" },
-    { id: 3, text: "Welcome to the new dashboard!", read: true, time: "1d ago" },
-  ]);
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user]);
 
-  if (!user) return null;
+  const fetchNotifications = async () => {
+    try {
+      const data = await notificationService.getNotifications();
+      setNotifications(data);
+    } catch (error) {
+      console.error("Failed to load notifications:", error);
+    }
+  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Typically you'd route to a search page or dispatch an action
-      // e.g. router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-      console.log("Searching for:", searchQuery);
+      router.push(`/dashboard?search=${encodeURIComponent(searchQuery)}`);
+      setShowDropdown(false);
+      setShowNotifications(false);
     }
   };
 
-  const markAllRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, read: true })));
+  const markAllRead = async () => {
+    try {
+      const updated = await notificationService.markAllAsRead();
+      setNotifications(updated);
+    } catch (error) {
+      console.error("Failed to mark all as read:", error);
+    }
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const markAsRead = async (id: string) => {
+    try {
+      const updatedItem = await notificationService.markAsRead(id);
+      setNotifications(prev => prev.map(n => n.id === updatedItem.id ? updatedItem : n));
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
+
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+
+  if (!user) return null;
 
   return (
     <nav className="fixed top-0 z-30 w-full bg-white/80 backdrop-blur-md border-b border-slate-200 ml-0 md:ml-64 w-[calc(100%-16rem)]">
@@ -103,11 +127,17 @@ export default function Navbar() {
                   <div className="max-h-64 overflow-y-auto">
                     {notifications.length > 0 ? (
                       notifications.map(notification => (
-                        <div key={notification.id} className={`px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 ${notification.read ? 'opacity-60' : ''}`}>
-                          <p className={`text-sm ${notification.read ? 'text-slate-600' : 'text-slate-900 font-semibold'}`}>
-                            {notification.text}
+                        <div 
+                          key={notification.id} 
+                          onClick={() => !notification.is_read && markAsRead(notification.id)}
+                          className={`px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 ${notification.is_read ? 'opacity-60' : ''}`}
+                        >
+                          <p className={`text-sm ${notification.is_read ? 'text-slate-600' : 'text-slate-900 font-semibold'}`}>
+                            {notification.message}
                           </p>
-                          <p className="text-[10px] text-slate-400 mt-1">{notification.time}</p>
+                          <p className="text-[10px] text-slate-400 mt-1">
+                            {new Date(notification.created_at).toLocaleDateString()}
+                          </p>
                         </div>
                       ))
                     ) : (
