@@ -1,5 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError, HTTPException
+from app.api.exception_handlers import (
+    global_exception_handler,
+    http_exception_handler,
+    validation_exception_handler,
+)
 
 from app.core.config import settings
 
@@ -21,6 +27,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Exception Handlers
+app.add_exception_handler(Exception, global_exception_handler)
+app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 # Import routes after middleware is set up
 from app.api.routes import auth, users, tasks, categories, analytics, settings as settings_routes, audit_logs, notifications  # noqa: E402
