@@ -93,3 +93,20 @@ def delete_user_route(
         raise HTTPException(status_code=404, detail="User not found")
     delete_user(db, user)
     return user
+
+@router.put("/{user_id}", response_model=UserResponse)
+def update_user_admin(
+    *,
+    db: Session = Depends(deps.get_db),
+    user_id: str,
+    user_in: UserUpdate,
+    current_user: User = Depends(deps.get_current_active_admin_user),
+) -> Any:
+    """
+    Update a user. (Admin only)
+    """
+    user = get_user(db, user_id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user = update_user(db, db_user=user, user_in=user_in)
+    return user

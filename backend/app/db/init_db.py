@@ -20,7 +20,14 @@ def init_db(db: Session) -> None:
         create_user(db, admin_in, role="admin")
         print(f"Default admin created: {settings.FIRST_SUPERUSER} ({settings.FIRST_SUPERUSER_USERNAME})")
     else:
-        if user_by_email:
-            print(f"Default admin already exists with email: {settings.FIRST_SUPERUSER}")
-        if user_by_username:
-            print(f"Default admin already exists with username: {settings.FIRST_SUPERUSER_USERNAME}")
+        admin = user_by_username or user_by_email
+        # Update admin to match current settings
+        from app.schemas.user_schema import UserUpdate
+        from app.crud.user_crud import update_user
+        
+        update_data = UserUpdate(
+            email=settings.FIRST_SUPERUSER,
+            password=settings.FIRST_SUPERUSER_PASSWORD
+        )
+        update_user(db, db_user=admin, user_in=update_data)
+        print(f"Default admin credentials synchronized for: {settings.FIRST_SUPERUSER_USERNAME}")
