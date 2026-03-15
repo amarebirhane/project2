@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -12,6 +12,7 @@ from app.core.dependencies import limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 from app.core.logging_config import setup_logging
+from app.core.socket_manager import socket_manager
 
 # Initialize Logging
 setup_logging()
@@ -63,6 +64,17 @@ app.include_router(notifications.router, prefix=f"{settings.API_V1_STR}/notifica
 app.include_router(collaboration.router, prefix=f"{settings.API_V1_STR}/collaboration", tags=["collaboration"])
 app.include_router(attachments.router, prefix=f"{settings.API_V1_STR}/attachments", tags=["attachments"])
 
+
+@app.websocket("/ws/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, user_id: str):
+    await socket_manager.connect(websocket, user_id)
+    try:
+        while True:
+            # Keep connection alive; can receive messages if needed
+            data = await websocket.receive_text()
+            # Respond or ignore
+    except WebSocketDisconnect:
+        socket_manager.disconnect(websocket, user_id)
 
 @app.on_event("startup")
 async def on_startup():
