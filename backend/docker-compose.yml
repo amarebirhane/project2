@@ -45,6 +45,19 @@ services:
       - db
       - redis
 
+  minio:
+    image: minio/minio
+    container_name: task_manager_minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    env_file:
+      - .env
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
 volumes:
   postgres_data:
   redis_data:
+  minio_data:
