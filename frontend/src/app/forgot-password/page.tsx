@@ -19,7 +19,6 @@ export default function ForgotPasswordPage() {
   const [needs2FA, setNeeds2FA] = useState(false);
   const [loading, setLoading] = useState(false);
   const { addToast } = useToasts();
-  const [error, setError] = useState("");
 
   // Step 1: Request reset token
   const handleEmailSubmit = async (e: React.FormEvent) => {
@@ -105,12 +104,6 @@ export default function ForgotPasswordPage() {
           <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">{title}</h2>
           <p className="mt-2 text-sm text-slate-500">{subtitle}</p>
         </div>
-
-        {error && (
-          <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl">
-            {error}
-          </div>
-        )}
 
         {step === "email" && (
           <form onSubmit={handleEmailSubmit} className="space-y-6">
