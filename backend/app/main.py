@@ -38,12 +38,17 @@ async def lifespan(app: FastAPI):
     
     yield
 
+from app.api.middleware.security_headers import SecurityHeadersMiddleware
+
 # Create app and register CORS FIRST — before any imports that could fail
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     lifespan=lifespan
 )
+
+# Security Headers Middleware
+app.add_middleware(SecurityHeadersMiddleware)
 
 # CORS — must be added before routes. Allow frontend origin.
 app.add_middleware(
