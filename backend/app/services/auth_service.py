@@ -37,7 +37,7 @@ class AuthService:
             audit_service.log(db, username=identifier, action="login_failed", details={"reason": "invalid_credentials"})
             return None
         
-        if not user.is_active:
+        if user.is_active is False:
             audit_service.log(db, user_id=user.id, username=user.username, action="login_denied", details={"reason": "account_inactive"})
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is inactive")
 
