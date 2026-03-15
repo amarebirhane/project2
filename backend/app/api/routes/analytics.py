@@ -8,10 +8,13 @@ from app.models.task import Task
 from app.models.user import User
 from app.schemas.analytics_schema import UserAnalytics, SystemAnalytics, TaskStatusCount
 
+from app.utils.cache import cache
+
 router = APIRouter()
 
 @router.get("/me", response_model=UserAnalytics)
-def get_user_analytics(
+@cache(expire=300)
+async def get_user_analytics(
     db: Session = Depends(deps.get_db),
     current_user: User = Depends(deps.get_current_active_user),
 ) -> Any:
