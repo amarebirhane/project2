@@ -1,9 +1,11 @@
 import api from "@/services/api";
 import { User } from "@/types/user";
+import { PaginatedResponse } from "@/types/pagination";
 
 export const userService = {
-  getUsers: async (skip = 0, limit = 100) => {
-    const response = await api.get<User[]>("/users/", { params: { skip, limit } });
+  getUsers: async (page = 1, limit = 8) => {
+    const skip = (page - 1) * limit;
+    const response = await api.get<PaginatedResponse<User>>("/users/", { params: { skip, limit } });
     return response.data;
   },
 
