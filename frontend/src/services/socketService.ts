@@ -56,7 +56,9 @@ class SocketService {
 
   subscribe(listener: (msg: SocketMessage) => void) {
     this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
   }
 
   send(message: SocketMessage) {
@@ -67,4 +69,3 @@ class SocketService {
 }
 
 export const socketService = new SocketService();
-捉
