@@ -38,9 +38,6 @@ async def lifespan(app: FastAPI):
     
     yield
 
-# Initialize Limiter
-limiter = Limiter(key_func=get_remote_address)
-
 from app.api.middleware.security_headers import SecurityHeadersMiddleware
 
 # Create app and register CORS FIRST — before any imports that could fail
