@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { collaborationService } from '../services/collaborationService';
 import { userService } from '../services/userService';
