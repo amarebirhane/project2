@@ -9,7 +9,7 @@ from app.models.user import User
 
 router = APIRouter()
 
-@router.get("/", response_model=List[TaskResponse])
+@router.get("/", response_model=List[TaskResponse], summary="Retrieve user's tasks")
 def read_tasks(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -22,7 +22,7 @@ def read_tasks(
     """
     return task_service.get_tasks_for_user(db, user=current_user, skip=skip, limit=limit, search=search)
 
-@router.post("/", response_model=TaskResponse)
+@router.post("/", response_model=TaskResponse, summary="Create a new task")
 def create_task(
     *,
     db: Session = Depends(deps.get_db),
@@ -34,7 +34,7 @@ def create_task(
     """
     return task_service.create_task(db, user=current_user, task_in=task_in)
 
-@router.put("/{id}", response_model=TaskResponse)
+@router.put("/{id}", response_model=TaskResponse, summary="Update an existing task")
 def update_task(
     *,
     db: Session = Depends(deps.get_db),
@@ -47,7 +47,7 @@ def update_task(
     """
     return task_service.update_task_securely(db, user=current_user, task_id=id, task_in=task_in)
 
-@router.delete("/{id}", response_model=TaskResponse)
+@router.delete("/{id}", summary="Delete a task permanently")
 def delete_task(
     *,
     db: Session = Depends(deps.get_db),

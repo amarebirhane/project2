@@ -12,7 +12,7 @@ from app.services.email_service import email_service
 
 router = APIRouter()
 
-@router.post("/register", response_model=UserResponse)
+@router.post("/register", response_model=UserResponse, summary="Register a new user")
 @limiter.limit("5/minute")
 def register(
     request: Request,
@@ -36,7 +36,7 @@ def register(
     
     return user
 
-@router.post("/login")
+@router.post("/login", summary="Login and get access token")
 @limiter.limit("5/minute")
 def login(
     request: Request,
@@ -58,7 +58,7 @@ def login(
     audit_service.log(db, user_id=user.id, username=user.username, action="login")
     return auth_service.create_login_token(str(user.id))
 
-@router.post("/logout")
+@router.post("/logout", summary="Logout current user")
 def logout(
     db: Session = Depends(deps.get_db),
     current_user: Any = Depends(deps.get_current_active_user)
@@ -69,7 +69,7 @@ def logout(
     audit_service.log(db, user_id=current_user.id, username=current_user.username, action="logout")
     return {"msg": "Logged out successfully"}
 
-@router.post("/2fa/setup")
+@router.post("/2fa/setup", summary="Setup 2FA secret")
 def setup_2fa(
     db: Session = Depends(deps.get_db),
     current_user: Any = Depends(deps.get_current_active_user)
@@ -83,7 +83,7 @@ def setup_2fa(
     provisioning_uri = f"otpauth://totp/{settings.PROJECT_NAME}:{current_user.email}?secret={secret}&issuer={settings.PROJECT_NAME}"
     return {"secret": secret, "provisioning_uri": provisioning_uri}
 
-@router.post("/2fa/verify")
+@router.post("/2fa/verify", summary="Verify and enable 2FA")
 def verify_2fa_setup(
     db: Session = Depends(deps.get_db),
     code: str = Query(...),
@@ -100,7 +100,7 @@ def verify_2fa_setup(
     raise HTTPException(status_code=400, detail="Invalid 2FA code")
 
 
-@router.post("/password-reset/request")
+@router.post("/password-reset/request", summary="Request password reset token")
 def request_password_reset(
     data: PasswordResetRequest,
     db: Session = Depends(deps.get_db)
@@ -115,7 +115,7 @@ def request_password_reset(
     has_2fa = user.is_two_factor_enabled if user else False
     return {"msg": "Password reset token generated", "token": token, "2fa_required": has_2fa}
 
-@router.post("/password-reset/reset")
+@router.post("/password-reset/reset", summary="Reset password using token")
 def reset_password(
     data: PasswordReset,
     db: Session = Depends(deps.get_db),
