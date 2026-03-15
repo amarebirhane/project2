@@ -6,8 +6,13 @@ import { LogOut, User as UserIcon, Bell, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { notificationService, Notification } from "@/services/notificationService";
+import { clsx } from "clsx";
 
-export default function Navbar() {
+interface NavbarProps {
+  isSidebarOpen: boolean;
+}
+
+export default function Navbar({ isSidebarOpen }: NavbarProps) {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -62,13 +67,17 @@ export default function Navbar() {
   if (!user) return null;
 
   return (
-    <nav className="fixed top-0 z-30 w-full bg-white/80 backdrop-blur-md border-b border-slate-200 ml-0 md:ml-64 w-[calc(100%-16rem)]">
-      <div className="px-4 py-3 lg:px-6">
-        <div className="flex items-center justify-between gap-4">
+    <nav className={clsx(
+      "fixed top-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 transition-all duration-300",
+      isSidebarOpen ? "md:w-[calc(100%-16rem)]" : "md:w-[calc(100%-5rem)]",
+      "w-full" // mobile full width
+    )}>
+      <div className="px-4 h-16 flex items-center">
+        <div className="flex items-center justify-between w-full gap-4">
           
-          {/* Left Side: Welcome or Mobile Logo */}
-          <div className="flex items-center flex-shrink-0">
-            <h1 className="text-lg font-semibold text-slate-800 hidden lg:block whitespace-nowrap">
+          {/* Left Side: Welcome or Mobile Drawer Toggle (if needed) */}
+          <div className="flex items-center flex-shrink-0 min-w-0">
+            <h1 className="text-lg font-bold text-slate-800 hidden lg:block whitespace-nowrap overflow-hidden text-ellipsis">
               Welcome back, <span className="text-primary-600">{user.username}</span>
             </h1>
           </div>
@@ -96,8 +105,7 @@ export default function Navbar() {
             </form>
           </div>
           
-          {/* Right Side: Icons and Avatar */}
-          <div className="flex items-center gap-2 sm:gap-4 ml-auto">
+          <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
             
             {/* Notifications */}
             <div className="relative">
@@ -106,9 +114,9 @@ export default function Navbar() {
                   setShowNotifications(!showNotifications);
                   setShowDropdown(false);
                 }}
-                className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all relative"
+                className="p-2 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all relative group"
               >
-                <Bell className="h-5 w-5" />
+                <Bell className="h-5 w-5 group-hover:scale-110 transition-transform" />
                 {unreadCount > 0 && (
                   <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 border-2 border-white"></span>
                 )}

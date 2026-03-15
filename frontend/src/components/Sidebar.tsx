@@ -28,10 +28,14 @@ const navItems = [
   { name: "Audit Logs", href: "/dashboard/audit-logs", icon: Activity, roles: ["admin"] },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+}
+
+export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
-  const [isOpen, setIsOpen] = React.useState(true);
 
   if (!user) return null;
 
