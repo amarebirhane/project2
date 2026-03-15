@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError, HTTPException
+from fastapi.staticfiles import StaticFiles
+import os
 from app.api.exception_handlers import (
     global_exception_handler,
     http_exception_handler,
@@ -35,6 +37,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Static Files (for uploads)
+UPLOAD_DIR = "app/static/uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
 # Exception Handlers
 app.add_exception_handler(Exception, global_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
@@ -43,7 +50,7 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Import routes after middleware is set up
-from app.api.routes import auth, users, tasks, categories, analytics, settings as settings_routes, audit_logs, notifications, collaboration  # noqa: E402
+from app.api.routes import auth, users, tasks, categories, analytics, settings as settings_routes, audit_logs, notifications, collaboration, attachments  # noqa: E402
 
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
 app.include_router(users.router, prefix=f"{settings.API_V1_STR}/users", tags=["users"])
@@ -54,6 +61,7 @@ app.include_router(settings_routes.router, prefix=f"{settings.API_V1_STR}/settin
 app.include_router(audit_logs.router, prefix=f"{settings.API_V1_STR}/audit-logs", tags=["audit-logs"])
 app.include_router(notifications.router, prefix=f"{settings.API_V1_STR}/notifications", tags=["notifications"])
 app.include_router(collaboration.router, prefix=f"{settings.API_V1_STR}/collaboration", tags=["collaboration"])
+app.include_router(attachments.router, prefix=f"{settings.API_V1_STR}/attachments", tags=["attachments"])
 
 
 @app.on_event("startup")
