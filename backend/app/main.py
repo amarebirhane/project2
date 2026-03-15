@@ -38,6 +38,9 @@ async def lifespan(app: FastAPI):
     
     yield
 
+# Initialize Limiter
+limiter = Limiter(key_func=get_remote_address)
+
 from app.api.middleware.security_headers import SecurityHeadersMiddleware
 
 # Create app and register CORS FIRST — before any imports that could fail
@@ -46,6 +49,10 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     lifespan=lifespan
 )
+
+# Rate limiting state
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Security Headers Middleware
 app.add_middleware(SecurityHeadersMiddleware)
