@@ -29,8 +29,21 @@ export const useWebSocket = (userId: string | undefined, options: UseWebSocketOp
     reconnectIntervalRef.current = options.reconnectInterval ?? 3000;
   });
 
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const connect = useCallback(() => {
     if (!userId) return;
+
+    if (socketRef.current) {
+      socketRef.current.onclose = null;
+      socketRef.current.close();
+      socketRef.current = null;
+    }
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
 
     const baseUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000';
     const socket = new WebSocket(`${baseUrl}/ws/${userId}`);
@@ -57,7 +70,7 @@ export const useWebSocket = (userId: string | undefined, options: UseWebSocketOp
       onDisconnectRef.current?.();
 
       if (reconnectCountRef.current < reconnectAttemptsRef.current) {
-        setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
           reconnectCountRef.current += 1;
           connect();
         }, reconnectIntervalRef.current);
