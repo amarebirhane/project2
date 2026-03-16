@@ -63,6 +63,37 @@ export default function SettingsPage() {
     fetchSettings();
   }, []);
 
+  const fetchHistory = async () => {
+    setLoadingHistory(true);
+    try {
+      const data = await notificationService.getNotifications();
+      setHistory(data);
+    } catch (error) {
+      console.error("Failed to fetch notification history", error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  const handleUpdatePrefs = async () => {
+    setSaving(true);
+    try {
+      await userService.updateMe(prefs);
+      addToast("Preferences updated", "success");
+    } catch (error) {
+      console.error("Failed to update preferences", error);
+      addToast("Failed to update preferences", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "notifications") {
+      fetchHistory();
+    }
+  }, [activeTab]);
+
   const fetchBackups = async () => {
     setLoadingBackups(true);
     try {
