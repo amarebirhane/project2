@@ -90,7 +90,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           })}
         </nav>
 
-        <div className="absolute bottom-4 left-0 w-full px-3">
+        <div className="absolute bottom-4 left-0 w-full px-3 space-y-2">
           <Link
             href="/settings"
             className="flex items-center p-2 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 transition-all duration-200"
@@ -98,6 +98,24 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             <Settings className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300" />
             {isOpen && <span className="ml-3">Settings</span>}
           </Link>
+          
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-3 p-2">
+              <div className="h-9 w-9 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700">
+                {user?.profile_image_url ? (
+                  <img src={user.profile_image_url} alt={user.username} className="h-full w-full object-cover" />
+                ) : (
+                  <User size={18} className="text-slate-400" />
+                )}
+              </div>
+              {isOpen && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{user?.username}</p>
+                  <p className="text-[10px] text-slate-500 truncate uppercase tracking-wider">{user?.role}</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </aside>

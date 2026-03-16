@@ -27,7 +27,7 @@ interface Setting {
 }
 
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState("general");
   const [settings, setSettings] = useState<Setting[]>([]);
@@ -267,14 +267,29 @@ export default function SettingsPage() {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Display Name</label>
-                        <input type="text" className="input-base dark:bg-slate-900/50 dark:border-slate-700" defaultValue={`${user?.first_name} ${user?.last_name}`} />
+                  <div className="flex flex-col md:flex-row gap-8 items-start">
+                    <div className="flex-shrink-0">
+                      <AvatarUpload 
+                        currentUrl={user?.profile_image_url} 
+                        onUploadSuccess={(newUrl) => {
+                          if (user) {
+                            setUser({ ...user, profile_image_url: newUrl });
+                          }
+                        }}
+                      />
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Email Address</label>
-                        <input type="email" className="input-base bg-slate-50 dark:bg-slate-800 dark:border-slate-700" defaultValue={user?.email} disabled />
+                    
+                    <div className="flex-1 w-full space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Display Name</label>
+                            <input type="text" className="input-base dark:bg-slate-900/50 dark:border-slate-700" defaultValue={`${user?.first_name} ${user?.last_name}`} />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Email Address</label>
+                            <input type="email" className="input-base bg-slate-50 dark:bg-slate-800 dark:border-slate-700" defaultValue={user?.email} disabled />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
