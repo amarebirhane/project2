@@ -7,7 +7,7 @@ import { userService } from "@/services/userService";
 import { User } from "@/types/user";
 import { useToasts } from "@/components/Toast";
 import Pagination from "@/components/Pagination";
-import { Trash2, UserCog, Mail, Shield, Loader2, Plus, X, User as UserIcon, Lock, Save, Eye, Power, AlertTriangle, DownloadCloud } from "lucide-react";
+import { Trash2, UserCog, Mail, Shield, Loader2, Plus, X, User as UserIcon, Lock, Save, Eye, EyeOff, Power, AlertTriangle, DownloadCloud } from "lucide-react";
 import { TableSkeleton } from "@/components/Skeletons";
 
 export default function UsersPage() {
@@ -25,6 +25,7 @@ export default function UsersPage() {
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToView, setUserToView] = useState<User | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { addToast } = useToasts();
   const [formData, setFormData] = useState({
     email: "",
@@ -92,6 +93,7 @@ export default function UsersPage() {
 
   const openCreateModal = () => {
     setEditingUser(null);
+    setShowPassword(false);
     setFormData({
       email: "",
       username: "",
@@ -105,6 +107,7 @@ export default function UsersPage() {
 
   const openEditModal = (user: User) => {
     setEditingUser(user);
+    setShowPassword(false);
     setFormData({
       email: user.email,
       username: user.username,
@@ -338,13 +341,16 @@ export default function UsersPage() {
                   <div className="relative">
                     <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                     <input 
-                      type="password" 
+                      type={showPassword ? "text" : "password"}
                       placeholder={editingUser ? "Leave blank to keep current" : "••••••••"}
                       required={!editingUser}
-                      className="input-base text-sm pl-10" 
+                      className="input-base text-sm pl-10 pr-10" 
                       value={formData.password}
                       onChange={e => setFormData({...formData, password: e.target.value})}
                     />
+                    <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
                   </div>
                 </div>
 

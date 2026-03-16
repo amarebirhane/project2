@@ -11,7 +11,7 @@ import { useToasts } from "@/components/Toast";
 import api from "@/services/api";
 import { authService } from "@/features/auth/authService";
 import { 
-  Settings as SettingsIcon, Shield, Globe, Bell, User, Save, Loader2, AlertCircle, X, Lock, CheckCircle2, Sun, Moon, Monitor, Palette, Database, DownloadCloud, Trash2, Plus, RefreshCcw, History, Info, Mail, Camera
+  Settings as SettingsIcon, Shield, Globe, Bell, User, Save, Loader2, AlertCircle, X, Lock, CheckCircle2, Sun, Moon, Monitor, Palette, Database, DownloadCloud, Trash2, Plus, RefreshCcw, History, Info, Mail, Camera, Eye, EyeOff
 } from "lucide-react";
 import AvatarUpload from "@/components/AvatarUpload";
 import { useTheme } from "@/context/ThemeContext";
@@ -56,6 +56,9 @@ export default function SettingsPage() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showOldPw, setShowOldPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
 
   // Backup States
   const [backups, setBackups] = useState<string[]>([]);
@@ -633,33 +636,48 @@ export default function SettingsPage() {
               <div className="p-6 space-y-4">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Current Password</label>
-                  <input 
-                    type="password" 
-                    placeholder="••••••••" 
-                    className="input-base" 
-                    value={oldPassword}
-                    onChange={(e) => setOldPassword(e.target.value)}
-                  />
+                  <div className="relative">
+                    <input 
+                      type={showOldPw ? "text" : "password"}
+                      placeholder="••••••••" 
+                      className="input-base pr-10" 
+                      value={oldPassword}
+                      onChange={(e) => setOldPassword(e.target.value)}
+                    />
+                    <button type="button" onClick={() => setShowOldPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                      {showOldPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">New Password</label>
-                  <input 
-                    type="password" 
-                    placeholder="••••••••" 
-                    className="input-base" 
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                  />
+                  <div className="relative">
+                    <input 
+                      type={showNewPw ? "text" : "password"}
+                      placeholder="••••••••" 
+                      className="input-base pr-10" 
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                    <button type="button" onClick={() => setShowNewPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                      {showNewPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Confirm New Password</label>
-                  <input 
-                    type="password" 
-                    placeholder="••••••••" 
-                    className="input-base" 
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
+                  <div className="relative">
+                    <input 
+                      type={showConfirmPw ? "text" : "password"}
+                      placeholder="••••••••" 
+                      className="input-base pr-10" 
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                    <button type="button" onClick={() => setShowConfirmPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                      {showConfirmPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
                 </div>
                 <div className="pt-4 flex gap-3">
                   <button 
