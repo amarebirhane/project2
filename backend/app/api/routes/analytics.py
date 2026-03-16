@@ -42,14 +42,15 @@ async def get_user_analytics(
     }
 
 @router.get("/system", response_model=SystemAnalytics)
-def get_system_analytics(
+@cache(expire=3600)
+async def get_system_analytics(
     db: Session = Depends(deps.get_db),
     current_user: User = Depends(deps.get_current_active_admin_user),
 ) -> Any:
     """
     Get system-wide analytics (Admin only).
     """
-    user_data = get_user_analytics(db, current_user)
+    user_data = await get_user_analytics(db, current_user)
     total_users = db.query(User).count()
     
     return {
