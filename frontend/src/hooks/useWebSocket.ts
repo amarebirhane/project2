@@ -13,10 +13,25 @@ export const useWebSocket = (userId: string | undefined, options: UseWebSocketOp
   const [isConnected, setIsConnected] = useState(false);
   const reconnectCountRef = useRef(0);
 
+  // Store callbacks in refs so they never cause the connect fn to be recreated
+  const onMessageRef = useRef(options.onMessage);
+  const onConnectRef = useRef(options.onConnect);
+  const onDisconnectRef = useRef(options.onDisconnect);
+  const reconnectAttemptsRef = useRef(options.reconnectAttempts ?? 5);
+  const reconnectIntervalRef = useRef(options.reconnectInterval ?? 3000);
+
+  // Keep refs in sync with latest options on each render
+  useEffect(() => {
+    onMessageRef.current = options.onMessage;
+    onConnectRef.current = options.onConnect;
+    onDisconnectRef.current = options.onDisconnect;
+    reconnectAttemptsRef.current = options.reconnectAttempts ?? 5;
+    reconnectIntervalRef.current = options.reconnectInterval ?? 3000;
+  });
+
   const connect = useCallback(() => {
     if (!userId) return;
 
-    // Use environment variable for base URL if available, else fallback
     const baseUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000';
     const socket = new WebSocket(`${baseUrl}/ws/${userId}`);
 
@@ -24,13 +39,13 @@ export const useWebSocket = (userId: string | undefined, options: UseWebSocketOp
       console.log('WS: Connected');
       setIsConnected(true);
       reconnectCountRef.current = 0;
-      options.onConnect?.();
+      onConnectRef.current?.();
     };
 
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        options.onMessage?.(data);
+        onMessageRef.current?.(data);
       } catch (err) {
         console.error('WS: Error parsing message', err);
       }
@@ -39,25 +54,30 @@ export const useWebSocket = (userId: string | undefined, options: UseWebSocketOp
     socket.onclose = () => {
       console.log('WS: Disconnected');
       setIsConnected(false);
-      options.onDisconnect?.();
+      onDisconnectRef.current?.();
 
-      // Simple reconnect logic
-      const maxAttempts = options.reconnectAttempts ?? 5;
-      if (reconnectCountRef.current < maxAttempts) {
+      if (reconnectCountRef.current < reconnectAttemptsRef.current) {
         setTimeout(() => {
           reconnectCountRef.current += 1;
           connect();
-        }, options.reconnectInterval ?? 3000);
+        }, reconnectIntervalRef.current);
       }
     };
 
     socketRef.current = socket;
-  }, [userId, options]);
+  }, [userId]); // ← only userId; callbacks are accessed via refs
 
   useEffect(() => {
     connect();
     return () => {
-      socketRef.current?.close();
+      // Close cleanly and prevent any pending reconnect from firing
+      const ws = socketRef.current;
+      if (ws) {
+        ws.onclose = null; // suppress reconnect on intentional close
+        ws.close();
+        socketRef.current = null;
+      }
+      reconnectCountRef.current = reconnectAttemptsRef.current; // exhaust retries
     };
   }, [connect]);
 
