@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.api import deps
 from app.services.auth_service import auth_service
 from app.services.audit_service import audit_service
-from app.schemas.user_schema import UserCreate, UserResponse, PasswordResetRequest, PasswordReset
+from app.schemas.user_schema import UserCreate, UserResponse, PasswordResetRequest, PasswordReset, Token, RefreshTokenRequest
 from app.core.dependencies import limiter
 from app.services.email_service import email_service
 
@@ -36,7 +36,9 @@ def register(
     
     return user
 
-@router.post("/login", summary="Login and get access token")
+    return user
+
+@router.post("/login", response_model=Token, summary="Login and get access token")
 @limiter.limit("5/minute")
 def login(
     request: Request,
@@ -68,6 +70,17 @@ def logout(
     """
     audit_service.log(db, user_id=current_user.id, username=current_user.username, action="logout")
     return {"msg": "Logged out successfully"}
+
+@router.post("/refresh", response_model=Token, summary="Refresh access token")
+def refresh_token(
+    request: Request,
+    data: RefreshTokenRequest,
+    db: Session = Depends(deps.get_db),
+) -> Any:
+    """
+    Refresh access token using a valid refresh token.
+    """
+    return auth_service.refresh_access_token(db, refresh_token=data.refresh_token)
 
 @router.post("/2fa/setup", summary="Setup 2FA secret")
 def setup_2fa(
