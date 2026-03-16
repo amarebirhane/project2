@@ -71,11 +71,17 @@ export default function SettingsPage() {
     fetchSettings();
   }, []);
 
-  useEffect(() => {
-    if (activeTab === "backups" && user?.role === "admin") {
-      fetchBackups();
+  const fetchBackups = async () => {
+    setLoadingBackups(true);
+    try {
+      const data = await backupService.getBackups();
+      setBackups(data);
+    } catch (error) {
+      addToast("Failed to fetch backups.", "error");
+    } finally {
+      setLoadingBackups(false);
     }
-  }, [activeTab, user]);
+  };
 
   useEffect(() => {
     if (activeTab === "backups" && user?.role === "admin") {
@@ -151,6 +157,42 @@ export default function SettingsPage() {
       addToast(error.response?.data?.detail || "Failed to update password.", "error");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const fetchBackups = async () => {
+    setLoadingBackups(true);
+    try {
+      const data = await backupService.getBackups();
+      setBackups(data);
+    } catch (error) {
+      addToast("Failed to fetch backups.", "error");
+    } finally {
+      setLoadingBackups(false);
+    }
+  };
+
+  const handleCreateBackup = async () => {
+    setCreatingBackup(true);
+    try {
+      await backupService.createBackup();
+      addToast("Backup created successfully.", "success");
+      fetchBackups();
+    } catch (error) {
+      addToast("Failed to create backup.", "error");
+    } finally {
+      setCreatingBackup(false);
+    }
+  };
+
+  const handleDeleteBackup = async (filename: string) => {
+    if (!confirm(`Are you sure you want to delete backup ${filename}?`)) return;
+    try {
+      await backupService.deleteBackup(filename);
+      addToast("Backup deleted successfully.", "success");
+      fetchBackups();
+    } catch (error) {
+      addToast("Failed to delete backup.", "error");
     }
   };
 
@@ -413,7 +455,11 @@ export default function SettingsPage() {
                               <div>
                                 <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{filename}</p>
                                 <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
-                                  {filename.includes('_') ? format(new Date(filename.split('_')[1].substring(0, 4), parseInt(filename.split('_')[1].substring(4, 6)) - 1, filename.split('_')[1].substring(6, 8)), 'PPP') : 'Snapshot'}
+                                  {filename.includes('_') ? format(new Date(
+                                    parseInt(filename.split('_')[1].substring(0, 4)), 
+                                    parseInt(filename.split('_')[1].substring(4, 6)) - 1, 
+                                    parseInt(filename.split('_')[1].substring(6, 8))
+                                  ), 'PPP') : 'Snapshot'}
                                 </p>
                               </div>
                             </div>
