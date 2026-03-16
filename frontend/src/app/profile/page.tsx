@@ -6,11 +6,11 @@ import { authService } from "@/features/auth/authService";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { getErrorMessage } from "@/utils/errorHandler";
 import { useToasts } from "@/components/Toast";
+import { User as UserIcon, UserCheck, Mail, Loader2, Save, Camera } from "lucide-react";
 import AvatarUpload from "@/components/AvatarUpload";
 
 export default function ProfilePage() {
   const { user, setUser } = useAuth();
-  // ... existing code ...
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -49,13 +49,28 @@ export default function ProfilePage() {
   return (
     <AuthenticatedLayout>
       <div className="max-w-4xl mx-auto py-8 px-4">
-        <div className="flex items-center space-x-4 mb-8">
-          <div className="h-16 w-16 bg-primary-100 rounded-full flex items-center justify-center text-primary-600">
-            <User size={32} />
+        <div className="flex flex-col md:flex-row items-center gap-8 mb-12 bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800">
+          <div className="flex-shrink-0">
+            <AvatarUpload 
+              currentUrl={user?.profile_image_url} 
+              onUploadSuccess={(newUrl) => {
+                if (user) {
+                  setUser({ ...user, profile_image_url: newUrl });
+                }
+              }}
+            />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">User Profile</h1>
-            <p className="text-slate-500">Manage your personal information</p>
+          <div className="text-center md:text-left">
+            <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Account Settings</h1>
+            <p className="text-slate-500 dark:text-slate-400 font-medium">Manage your personal identity and platform preferences</p>
+            <div className="flex flex-wrap justify-center md:justify-start gap-2 mt-4">
+              <span className="px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 text-[10px] font-bold uppercase tracking-widest rounded-lg border border-primary-200 dark:border-primary-800">
+                {user?.role} Account
+              </span>
+              <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold uppercase tracking-widest rounded-lg border border-slate-200 dark:border-slate-700">
+                ID: {user?.id.toString().substring(0, 8)}...
+              </span>
+            </div>
           </div>
         </div>
 
