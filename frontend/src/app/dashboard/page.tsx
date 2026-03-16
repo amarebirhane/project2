@@ -11,10 +11,11 @@ import {
 import { 
   CheckCircle2, 
   Clock, 
-  AlertCircle, 
+  AlertCircle,
   TrendingUp,
   Loader2
 } from "lucide-react";
+import { DashboardSkeleton } from "@/components/Skeletons";
 
 interface AnalyticsData {
   total_tasks: number;
