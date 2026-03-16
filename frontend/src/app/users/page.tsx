@@ -7,7 +7,7 @@ import { userService } from "@/services/userService";
 import { User } from "@/types/user";
 import { useToasts } from "@/components/Toast";
 import Pagination from "@/components/Pagination";
-import { Trash2, UserCog, Mail, Shield, Plus, X, User as UserIcon, Lock, Save, Eye, Power, AlertTriangle } from "lucide-react";
+import { Trash2, UserCog, Mail, Shield, Loader2, Plus, X, User as UserIcon, Lock, Save, Eye, Power, AlertTriangle } from "lucide-react";
 import { TableSkeleton } from "@/components/Skeletons";
 
 export default function UsersPage() {
