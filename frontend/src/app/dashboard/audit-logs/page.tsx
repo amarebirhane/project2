@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { auditService, AuditLog } from "@/services/auditService";
 import Pagination from "@/components/Pagination";
-import { Loader2, Shield, User, Clock, Activity, Search, Filter } from "lucide-react";
+import { Shield, User, Clock, Activity, Search, Filter } from "lucide-react";
+import { TableSkeleton } from "@/components/Skeletons";
 
 export default function AuditLogsPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
@@ -82,9 +83,7 @@ export default function AuditLogsPage() {
         </div>
 
         {loading ? (
-          <div className="flex h-64 items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
-          </div>
+          <TableSkeleton rows={8} />
         ) : (
           <div className="card-premium overflow-hidden">
             <div className="overflow-x-auto">

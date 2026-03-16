@@ -47,11 +47,7 @@ export default function DashboardPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (!data) return <div>Failed to load data</div>;

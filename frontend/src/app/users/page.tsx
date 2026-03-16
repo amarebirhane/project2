@@ -7,7 +7,8 @@ import { userService } from "@/services/userService";
 import { User } from "@/types/user";
 import { useToasts } from "@/components/Toast";
 import Pagination from "@/components/Pagination";
-import { Trash2, UserCog, Mail, Shield, Loader2, Plus, X, User as UserIcon, Lock, Save, Eye, Power, AlertTriangle } from "lucide-react";
+import { Trash2, UserCog, Mail, Shield, Plus, X, User as UserIcon, Lock, Save, Eye, Power, AlertTriangle } from "lucide-react";
+import { TableSkeleton } from "@/components/Skeletons";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -156,9 +157,7 @@ export default function UsersPage() {
         </div>
 
         {loading ? (
-          <div className="flex h-64 items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
-          </div>
+          <TableSkeleton rows={8} />
         ) : (
           <div className="card-premium overflow-hidden">
             <table className="w-full text-left border-collapse">
