@@ -1,14 +1,13 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime, Enum as SQLEnum, Boolean
-from sqlalchemy.dialects.postgresql import UUID
-
+from sqlalchemy.orm import relationship
 from app.db.base import Base
+from app.db.guid import GUID
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
