@@ -7,9 +7,12 @@ from app.services.task_service import task_service
 from app.schemas.category_schema import CategoryResponse, CategoryCreate
 from app.models.user import User
 
+from app.utils.cache import cache
+
 router = APIRouter()
 
 @router.get("/", response_model=List[CategoryResponse])
+@cache(expire=600)
 def read_categories(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
