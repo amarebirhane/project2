@@ -14,7 +14,7 @@ from app.api.deps import get_db
 from app.db.base import Base
 
 # Use an in-memory SQLite database for testing to ensure speed and isolation
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
@@ -25,7 +25,6 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 def create_test_db():
     Base.metadata.create_all(bind=engine)
     yield
-    # Base.metadata.drop_all(bind=engine) # Optional: drop after session
 
 @pytest.fixture
 def db() -> Generator[Session, None, None]:
