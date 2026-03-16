@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { auditService, AuditLog } from "@/services/auditService";
 import Pagination from "@/components/Pagination";
-import { Shield, User, Clock, Activity, Search, Filter } from "lucide-react";
+import { Shield, User, Clock, Activity, Search, Filter, DownloadCloud } from "lucide-react";
 import { TableSkeleton } from "@/components/Skeletons";
 
 export default function AuditLogsPage() {
@@ -61,9 +61,17 @@ export default function AuditLogsPage() {
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
       <div className="space-y-6 animate-fade-in">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 font-premium">System Audit Logs</h1>
-          <p className="text-sm text-slate-500">Track all security-relevant events and user actions</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 font-premium">System Audit Logs</h1>
+            <p className="text-sm text-slate-500">Track all security-relevant events and user actions</p>
+          </div>
+          <button 
+            onClick={() => auditService.exportLogsPDF()}
+            className="btn-primary-outline flex items-center gap-2"
+          >
+            <DownloadCloud size={18} /> Export PDF
+          </button>
         </div>
 
         <div className="flex gap-4">
