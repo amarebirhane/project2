@@ -87,8 +87,16 @@ export const useWebSocket = (userId: string | undefined, options: UseWebSocketOp
       const ws = socketRef.current;
       if (ws) {
         ws.onclose = null; // suppress reconnect on intentional close
-        ws.close();
+        // Only close if it's not already closed or closing
+        if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+          ws.close();
+        }
         socketRef.current = null;
+      }
+      
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
       }
       reconnectCountRef.current = reconnectAttemptsRef.current; // exhaust retries
     };
