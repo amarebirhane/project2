@@ -13,7 +13,7 @@ from app.utils.cache import cache
 
 router = APIRouter()
 
-@router.get("/", response_model=List[AuditLogResponse])
+@router.get("/", response_model=PaginatedResponse[AuditLogResponse])
 @cache(expire=3600)
 def read_audit_logs(
     db: Session = Depends(deps.get_db),
