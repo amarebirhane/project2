@@ -236,10 +236,13 @@ export default function UsersPage() {
                         <button 
                           title={user.is_active ? "Deactivate User" : "Activate User"}
                           onClick={() => handleToggleActive(user)}
+                          disabled={user.email === "admin@example.com"}
                           className={`p-2 rounded-lg transition-all shadow-sm ${
-                            user.is_active 
-                              ? "text-slate-400 hover:text-amber-600 hover:bg-white" 
-                              : "text-slate-400 hover:text-emerald-600 hover:bg-white"
+                            user.email === "admin@example.com"
+                              ? "text-slate-300 dark:text-slate-600 cursor-not-allowed"
+                              : user.is_active 
+                                ? "text-slate-400 hover:text-amber-600 hover:bg-white" 
+                                : "text-slate-400 hover:text-emerald-600 hover:bg-white"
                           }`}
                         >
                           <Power className="h-4 w-4" />
@@ -247,7 +250,12 @@ export default function UsersPage() {
                         <button 
                           title="Delete User"
                           onClick={() => setUserToDelete(user)}
-                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-white rounded-lg transition-all shadow-sm"
+                          disabled={user.email === "admin@example.com"}
+                          className={`p-2 rounded-lg transition-all shadow-sm ${
+                            user.email === "admin@example.com"
+                              ? "text-slate-300 dark:text-slate-600 cursor-not-allowed"
+                              : "text-slate-400 hover:text-red-600 hover:bg-white"
+                          }`}
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
